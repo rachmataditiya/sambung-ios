@@ -2,8 +2,8 @@
 
 Sambung is a chat-first messenger for LoRa mesh radios. It is a modified version of
 [Meshtastic-Apple](https://github.com/meshtastic/Meshtastic-Apple), changed from November 2026
-onward, and released under the same GPL-3.0 license. The changes live on the `sambung` branch;
-`main` follows upstream.
+onward, and released under the same GPL-3.0 license. Upstream is merged in from the
+`upstream` remote.
 
 Works with Meshtastic® nodes. Meshtastic® is a registered trademark of Meshtastic LLC. Sambung is
 not affiliated with or endorsed by the Meshtastic project.
