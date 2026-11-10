@@ -361,8 +361,13 @@ struct ContentView: View {
 		}
 	}
 
-	@ViewBuilder
+	/// Sambung: three tabs. Upstream's five-tab bar is kept below, unused, to keep merges simple.
 	private var tabContent: some View {
+		SambungShell(appState: appState, router: router, tabSelection: tabSelection)
+	}
+
+	@ViewBuilder
+	private var upstreamTabContent: some View {
 		if #available(iOS 18.0, macCatalyst 18.0, *) {
 			TabView(selection: tabSelection) {
 				Tab("Messages", systemImage: "message", value: NavigationState.Tab.messages) {

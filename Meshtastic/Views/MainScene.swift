@@ -7,7 +7,7 @@ import TipKit
 /// and the badge stay on `AppState` and are shared with every other window.
 struct MainScene: View {
 	let persistenceController: PersistenceController
-	@StateObject private var router = Router()
+	@StateObject private var router = Router(navigationState: NavigationState(selectedTab: .messages)) // Sambung opens on Chat
 	@StateObject private var nodeFilters = NodeFilterParameters()
 	@EnvironmentObject private var appState: AppState
 	@EnvironmentObject private var accessoryManager: AccessoryManager

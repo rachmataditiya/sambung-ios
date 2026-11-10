@@ -19,7 +19,25 @@ struct TextMessageField: View {
 	@State private var sendPositionWithMessage = false
 	@State private var mentionQuery: String? = nil
 
+	/// Sambung: quick replies above the field, and the text kept as a per-conversation draft.
 	var body: some View {
+		VStack(spacing: 0) {
+			if typingMessage.isEmpty && replyMessageId == 0 {
+				SambungQuickReplyBar { reply in
+					typingMessage = reply
+					sendMessage()
+				}
+			}
+			composeArea
+		}
+		.onAppear { typingMessage = SambungStore.shared.draft(for: destination.sambungKey) }
+		.onChange(of: typingMessage) { _, text in
+			SambungStore.shared.setDraft(text, for: destination.sambungKey)
+		}
+	}
+
+	@ViewBuilder
+	private var composeArea: some View {
 		if #available(iOS 18.0, macOS 15.0, *) {
 			FormattingComposeArea(
 				typingMessage: $typingMessage,
@@ -144,6 +162,11 @@ struct TextMessageField: View {
 	private func requestPosition() {
 		let userLongName = accessoryManager.activeConnection?.device.longName ?? "Unknown"
 		sendPositionWithMessage = true
+		// Sambung: put the coordinates in the text, so the message shows as a map bubble.
+		if let coordinate = LocationsHandler.currentLocation {
+			typingMessage = SambungLocationMessage.text(for: coordinate)
+			return
+		}
 		typingMessage = "📍 " + userLongName + " \(destination.positionShareMessage)."
 	}
 
@@ -158,7 +181,7 @@ struct TextMessageField: View {
 					replyID: replyMessageId)
 
 				typingMessage = ""
-				isFocused = false
+				// Sambung: the keyboard stays up after sending, as in any chat app.
 				replyMessageId = 0
 				await MainActor.run { onMessageSent?() }
 

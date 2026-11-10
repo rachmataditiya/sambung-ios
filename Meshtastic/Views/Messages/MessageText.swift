@@ -109,7 +109,9 @@ struct MessageText: View {
 			context: context
 		)
 		return Group {
-			if let attributed = try? AttributedString(markdown: payload, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
+			if let coordinate = SambungLocationMessage.coordinate(in: message.messagePayload ?? "") {
+				SambungLocationBubble(coordinate: coordinate, isCurrentUser: isCurrentUser)
+			} else if let attributed = try? AttributedString(markdown: payload, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
 				Text(colorLinks(in: attributed))
 			} else {
 				Text(LocalizedStringKey(payload))
@@ -120,11 +122,18 @@ struct MessageText: View {
 			// bubble text tail-truncated with "…" on long wrapping messages.
 			.fixedSize(horizontal: false, vertical: true)
 			.tint(Color("Colors/MeshtasticLink"))
-			.padding(.vertical, 10)
-			.padding(.horizontal, 8)
+			// Sambung bubble: roomier, with the corner next to the sender squared off.
+			.padding(.vertical, 9)
+			.padding(.horizontal, 13)
 			.foregroundColor(isCurrentUser ? .white : Color("Colors/MeshtasticBubbleText"))
 			.background(isCurrentUser ? Color.accentFill : Color("Colors/MeshtasticBubble"))
-			.cornerRadius(15)
+			.clipShape(UnevenRoundedRectangle(
+				topLeadingRadius: SambungTheme.bubbleRadius,
+				bottomLeadingRadius: isCurrentUser ? SambungTheme.bubbleRadius : 6,
+				bottomTrailingRadius: isCurrentUser ? 6 : SambungTheme.bubbleRadius,
+				topTrailingRadius: SambungTheme.bubbleRadius,
+				style: .continuous
+			))
 			.overlay(messageOverlays)
 			.contextMenu {
 				MessageContextMenuItems(
