@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!-- Speech bubble with two linked nodes cut out: a message carried over a link. -->
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M352 232 H672 A140 140 0 0 1 812 372 V532 A140 140 0 0 1 672 672 H476 L330 792 L352 672 A140 140 0 0 1 212 532 V372 A140 140 0 0 1 352 232 Z M348 452 a54 54 0 1 0 108 0 a54 54 0 1 0 -108 0 Z M568 452 a54 54 0 1 0 108 0 a54 54 0 1 0 -108 0 Z M456 432 H568 V472 H456 Z"/>
+</svg>

@@ -196,6 +196,8 @@ targets:
         type: syncedFolder
       - path: "Meshtastic/CarPlay"
         type: syncedFolder
+      - path: "Meshtastic/Sambung"
+        type: syncedFolder
       - path: "Meshtastic/Enums"
         type: syncedFolder
       - path: "Meshtastic/Export"
@@ -243,9 +245,6 @@ targets:
       - path: "Meshtastic/Resources/mqtt_roots.json"
       - path: "Meshtastic/Resources/AppIcon.icon"
       - path: "Meshtastic/Resources/AppIconDebug.icon"
-      - path: "Meshtastic/Resources/AppIcon_Chirpy.icon"
-      - path: "Meshtastic/Resources/AppIcon_Ham.icon"
-      - path: "Meshtastic/Resources/AppIcon_MPowered.icon"
       - path: "Meshtastic/Resources/docs"
         type: folder
       - path: "Localizable.xcstrings"
@@ -267,19 +266,7 @@ targets:
       # ("built for macOS but contains embedded content built for watchOS").
       # visionOS too: a native visionOS app only gets widgets from an
       # extension built for visionOS.
-      - target: WidgetsExtension
-        embed: true
-        destinationFilters: [iOS, visionOS]
-      - target: MeshtasticMessages
-        embed: true
-        platformFilter: iOS
-      - target: "Meshtastic Watch App"
-        embed: true
-        platformFilter: iOS
-        codeSign: true
-        copy:
-          destination: productsDirectory
-          subpath: $(CONTENTS_FOLDER_PATH)/Watch
+      # Sambung: the Widgets, iMessage and Watch targets are not embedded (not rebranded, not shipped).
       - package: CocoaMQTT
         product: CocoaMQTT
       - package: TAKPacket-SDK
@@ -373,7 +360,7 @@ targets:
           # don't include this folder). Their README (the copyright notice) stays out of every build, as does the model sync manifest.
           EXCLUDED_SOURCE_FILE_NAMES: "README.md model_manifest.json"
           INFOPLIST_FILE: "Meshtastic/Info.plist"
-          INFOPLIST_KEY_CFBundleDisplayName: "Meshtastic"
+          INFOPLIST_KEY_CFBundleDisplayName: "Sambung"
           INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.utilities"
           IPHONEOS_DEPLOYMENT_TARGET: "17.5"
           LD_RUNPATH_SEARCH_PATHS:
@@ -423,7 +410,7 @@ targets:
           # don't include this folder). Their README (the copyright notice) stays out of every build, as does the model sync manifest.
           EXCLUDED_SOURCE_FILE_NAMES: "README.md model_manifest.json"
           INFOPLIST_FILE: "Meshtastic/Info.plist"
-          INFOPLIST_KEY_CFBundleDisplayName: "Meshtastic"
+          INFOPLIST_KEY_CFBundleDisplayName: "Sambung"
           INFOPLIST_KEY_LSApplicationCategoryType: "public.app-category.utilities"
           IPHONEOS_DEPLOYMENT_TARGET: "17.5"
           LD_RUNPATH_SEARCH_PATHS:

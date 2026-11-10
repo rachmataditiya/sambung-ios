@@ -59,7 +59,7 @@ struct MeshtasticAppleApp: App {
 		SpatialLookout.migrateEighthTurns()
 #endif
 
-		if Self.shouldInitializeAppServices {
+		if Self.shouldInitializeAppServices && SambungConfig.upstreamTelemetryEnabled {
 			// Initialize Datadog
 			// RUM Client Tokens are NOT secret
 			let appID = "79fe92a9-74c9-4c8f-ba63-6308384ecfa9"

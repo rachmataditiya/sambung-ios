@@ -14,6 +14,14 @@ struct AboutMeshtastic: View {
 
 		VStack {
 			List {
+				Section(header: Text(verbatim: "Sambung")) {
+					Text(verbatim: "Sambung adalah versi modifikasi dari Meshtastic-Apple, diubah sejak November 2026 dan dirilis dengan lisensi GPL-3.0.")
+					Text(verbatim: "Works with Meshtastic® nodes. Meshtastic® is a registered trademark of Meshtastic LLC. Sambung is not affiliated with or endorsed by the Meshtastic project.")
+						.font(.callout)
+					Link(destination: SambungConfig.sourceURL) {
+						Text(verbatim: "Kode sumber Sambung")
+					}
+				}
 				Section(header: Text("What is Meshtastic?")) {
 					Text("An open source, off-grid, decentralized, mesh network that runs on affordable, low-power radios.")
 						.font(.title3)

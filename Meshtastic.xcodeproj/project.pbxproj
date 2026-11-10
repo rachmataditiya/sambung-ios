@@ -23,7 +23,6 @@
 		3233E2EC4CCC91360E23F283 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17AFA19C2AAB3C3ADFB1E33 /* AppState.swift */; };
 		33007286B0A108FF6655CC25 /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 69904575C8FBB8A536663F9E /* MeshtasticProtobufs */; };
 		3F091ECD7900D90169754B93 /* DatadogCrashReporting in Frameworks */ = {isa = PBXBuildFile; productRef = 43547F7F6DDB3842969DA369 /* DatadogCrashReporting */; };
-		40510578B699E4E44B9F1A70 /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E4053FDE501FD7E0A02CEA8D /* WidgetsExtension.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		41FB0099786769C56C465E58 /* mqtt_roots.json in Resources */ = {isa = PBXBuildFile; fileRef = 391CFE3B9D9A0171B3C3C8E9 /* mqtt_roots.json */; };
 		4584CB8BEA4226A1154EB385 /* OfflineMapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E531C14ABE7F1491959BBE3 /* OfflineMapManager.swift */; };
 		4701C2F3A8A60ADE516D7FA0 /* MeshtasticTAK in Frameworks */ = {isa = PBXBuildFile; productRef = F98E8431879FC7025B658B08 /* MeshtasticTAK */; };
@@ -42,8 +41,6 @@
 		66EFBB4E473C796ACAFF58C2 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6776764BA24154B603C76018 /* AppIcon.icon */; };
 		6742E3665676C65DDE17C453 /* Meshtastic.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4C621B0715362CE25600901D /* Meshtastic.xcdatamodeld */; };
 		6CABB3DA5BDD75359320B657 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 985D21086E966D40C875F3CD /* InfoPlist.strings */; };
-		7443E9D2180568F2E62EDAB6 /* AppIcon_Ham.icon in Resources */ = {isa = PBXBuildFile; fileRef = DD9ED0AFED536B2EE5F32F23 /* AppIcon_Ham.icon */; };
-		78B74168A96E756F203F9D13 /* AppIcon_Chirpy.icon in Resources */ = {isa = PBXBuildFile; fileRef = DD8FE67D6F2C7F041F8E3C8C /* AppIcon_Chirpy.icon */; };
 		7E17FA8179EB755709E65F33 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 26351F51CD01C94D8D82486A /* Localizable.xcstrings */; };
 		824834E7CD284E868BB3DDFF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 26351F51CD01C94D8D82486A /* Localizable.xcstrings */; };
 		8DFCC830624F2D4607E87938 /* MBTilesArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = A82B439BEF9740A80E66097A /* MBTilesArchive.swift */; };
@@ -57,48 +54,24 @@
 		BB73AFBEB76A7B00550C8F2F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A7443D3C9E82A023A4388EFC /* InfoPlist.strings */; };
 		C5B1D5B4B38940E115D61856 /* ShowcaseContent in Frameworks */ = {isa = PBXBuildFile; platformFilters = (xros, ); productRef = 854C16DCEE2F871D2485DEE3 /* ShowcaseContent */; };
 		C6148418734B3ADB2741CB8E /* PMTilesExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9297A8F3E4AAC1F74C05844 /* PMTilesExtractor.swift */; };
-		D8EAA0284C5F4F9CE9941A1D /* MeshtasticMessages.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 591BC4981F3D80C31349BEED /* MeshtasticMessages.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		ECF8A4938BAD87D6CD830F7A /* MeshtasticAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F2AD74F4ECBF91E5BE6275 /* MeshtasticAppDelegate.swift */; };
 		EFEED2F4EF7D9B1BB657458A /* DatadogRUM in Frameworks */ = {isa = PBXBuildFile; productRef = E96998AD4B79F29AF1E2A6D2 /* DatadogRUM */; };
 		F05DFDBFD6588DFEB6AD621F /* NordicDFU in Frameworks */ = {isa = PBXBuildFile; productRef = D83D0451F77A9D92FFC852CA /* NordicDFU */; };
-		F0F15E85A1D7193379E705C4 /* AppIcon_MPowered.icon in Resources */ = {isa = PBXBuildFile; fileRef = D744131C1600FC47CB596573 /* AppIcon_MPowered.icon */; };
 		F11D4AB6E3A799DEB883AC14 /* NodeDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074A4F4A084E3897FDDE16FB /* NodeDiscovery.swift */; };
 		F494AA4C9783F0E204B12D62 /* Kp1812 in Frameworks */ = {isa = PBXBuildFile; productRef = 55C660587FB0A7D904F89E6D /* Kp1812 */; };
 		F8D2F62028A2A100CDB80F82 /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 4AF5AACBB64F141EF02FC7DC /* MeshtasticProtobufs */; };
 		F8E5A8CEE6E96D5D53F6F851 /* DatadogTrace in Frameworks */ = {isa = PBXBuildFile; productRef = 3E5E35695D4334FDDA3BE8F2 /* DatadogTrace */; };
-		FC4CD35864385C9721A9A695 /* Meshtastic Watch App.app in Embed Dependencies */ = {isa = PBXBuildFile; fileRef = ADF6BAC3992D05079F77B35C /* Meshtastic Watch App.app */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FF64E74D859119DFCC57BD80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CC33262B2EA2E8463E8BE95 /* Assets.xcassets */; };
 		FFBFB6ED7A28837B22E688F1 /* SwiftDraw in Frameworks */ = {isa = PBXBuildFile; productRef = 9D120B166CA191FC578A9978 /* SwiftDraw */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		0C865737C7AD7739BD8C50B0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B1FDE49A580C939ADB9E00CE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A2F1595BC848E48B138C58E1;
-			remoteInfo = WidgetsExtension;
-		};
 		1B5441E6472D077F86C7500B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B1FDE49A580C939ADB9E00CE /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 731011765CF28FC65E45163E;
 			remoteInfo = "Meshtastic TV";
-		};
-		7641B817BB20E264D0A5E4E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B1FDE49A580C939ADB9E00CE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C4BC64E061C609D15F5DFAF5;
-			remoteInfo = "Meshtastic Watch App";
-		};
-		7A8108924780106AB29B257B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B1FDE49A580C939ADB9E00CE /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C92DCD5C1ED45374936973F2;
-			remoteInfo = MeshtasticMessages;
 		};
 		D28FD0EC2A7A271CF7A6C3A5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -108,32 +81,6 @@
 			remoteInfo = Meshtastic;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		A63CCB66363D08F7ACAAEE04 /* Embed Dependencies */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
-			dstSubfolderSpec = 16;
-			files = (
-				FC4CD35864385C9721A9A695 /* Meshtastic Watch App.app in Embed Dependencies */,
-			);
-			name = "Embed Dependencies";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CA9FB71C6A18034F5D61C206 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				40510578B699E4E44B9F1A70 /* WidgetsExtension.appex in Embed Foundation Extensions */,
-				D8EAA0284C5F4F9CE9941A1D /* MeshtasticMessages.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		074A4F4A084E3897FDDE16FB /* NodeDiscovery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NodeDiscovery.swift; path = "Meshtastic TV/Client/NodeDiscovery.swift"; sourceTree = "<group>"; };
@@ -236,12 +183,9 @@
 		C9809EEF00CA3DAEF694C5E1 /* MeshtasticDataModelV 40.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 40.xcdatamodel"; sourceTree = "<group>"; };
 		CAB4440FE5B2F92BD0209F09 /* MeshtasticDataModelV 36.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 36.xcdatamodel"; sourceTree = "<group>"; };
 		D1FADA395174C9DB3A777083 /* MeshtasticDataModelV32.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MeshtasticDataModelV32.xcdatamodel; sourceTree = "<group>"; };
-		D744131C1600FC47CB596573 /* AppIcon_MPowered.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon_MPowered.icon; sourceTree = "<group>"; };
 		D75ED0218214E24DA94280EC /* MeshtasticDataModelV2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MeshtasticDataModelV2.xcdatamodel; sourceTree = "<group>"; };
 		D82FCE5A8AC4219187BD1933 /* MeshtasticDataModelV 34.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 34.xcdatamodel"; sourceTree = "<group>"; };
 		D8AE43380BF070E6E906D841 /* MeshtasticDataModelV 53.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 53.xcdatamodel"; sourceTree = "<group>"; };
-		DD8FE67D6F2C7F041F8E3C8C /* AppIcon_Chirpy.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon_Chirpy.icon; sourceTree = "<group>"; };
-		DD9ED0AFED536B2EE5F32F23 /* AppIcon_Ham.icon */ = {isa = PBXFileReference; lastKnownFileType = wrapper.icon; path = AppIcon_Ham.icon; sourceTree = "<group>"; };
 		E4053FDE501FD7E0A02CEA8D /* WidgetsExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E41F76E242AA58583D058626 /* Meshtastic TVUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = "Meshtastic TVUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4B18DB5D1945CE9ABE5A18D /* MeshtasticDataModelV 58.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 58.xcdatamodel"; sourceTree = "<group>"; };
@@ -482,6 +426,16 @@
 			);
 			name = CarPlay;
 			path = CarPlay;
+			sourceTree = "<group>";
+		};
+		BEF2C0DD27C72C3FA71C091A /* Sambung */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			name = Sambung;
+			path = Sambung;
 			sourceTree = "<group>";
 		};
 		C21C46F8F2BCFF68F31B12C0 /* Export */ = {
@@ -728,6 +682,7 @@
 				FFE592D22DEA437B6844BD5F /* Provisioning */,
 				CB80AF85CDB41B08B142631A /* Resources */,
 				9F6D2EC582CAA968D897F796 /* Router */,
+				BEF2C0DD27C72C3FA71C091A /* Sambung */,
 				0B574D8559FE5799ADB5A517 /* Services */,
 				C95A60ECD93D37F4971EC685 /* Tips */,
 				A51EAC97BC38EC607711873D /* Views */,
@@ -830,9 +785,6 @@
 			isa = PBXGroup;
 			children = (
 				E8849D542B45F20F349E004D /* alpha.png */,
-				DD8FE67D6F2C7F041F8E3C8C /* AppIcon_Chirpy.icon */,
-				DD9ED0AFED536B2EE5F32F23 /* AppIcon_Ham.icon */,
-				D744131C1600FC47CB596573 /* AppIcon_MPowered.icon */,
 				6776764BA24154B603C76018 /* AppIcon.icon */,
 				6D159B66B1877A7506D1AB20 /* AppIconDebug.icon */,
 				C6BCC32505771F08628D70D7 /* DeviceHardware.json */,
@@ -1040,15 +992,10 @@
 				D73F2A1F89670B5FAD74DC99 /* Sources */,
 				D531C94E5F672895C0FCE3B4 /* Resources */,
 				C1C062BCF8372B48E9895EF0 /* Frameworks */,
-				CA9FB71C6A18034F5D61C206 /* Embed Foundation Extensions */,
-				A63CCB66363D08F7ACAAEE04 /* Embed Dependencies */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				9FFAEA9121B6A0A05F35FE59 /* PBXTargetDependency */,
-				EF933905B09CC60AA749AC97 /* PBXTargetDependency */,
-				9F8D08FE8C3920E29BC0C051 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				1B104A61866EBBAB39A96CD6 /* API */,
@@ -1067,6 +1014,7 @@
 				4E52FFD5347832FDB8575177 /* Persistence */,
 				FFE592D22DEA437B6844BD5F /* Provisioning */,
 				9F6D2EC582CAA968D897F796 /* Router */,
+				BEF2C0DD27C72C3FA71C091A /* Sambung */,
 				0B574D8559FE5799ADB5A517 /* Services */,
 				456E28D41A9B7B1788FEE0CD /* Shared */,
 				C95A60ECD93D37F4971EC685 /* Tips */,
@@ -1221,9 +1169,6 @@
 			files = (
 				66EFBB4E473C796ACAFF58C2 /* AppIcon.icon in Resources */,
 				5C31297EDE4B7294ECE538F4 /* AppIconDebug.icon in Resources */,
-				78B74168A96E756F203F9D13 /* AppIcon_Chirpy.icon in Resources */,
-				7443E9D2180568F2E62EDAB6 /* AppIcon_Ham.icon in Resources */,
-				F0F15E85A1D7193379E705C4 /* AppIcon_MPowered.icon in Resources */,
 				4748BFF7E7AEF9C8EDA23D91 /* AppIntentVocabulary.plist in Resources */,
 				FF64E74D859119DFCC57BD80 /* Assets.xcassets in Resources */,
 				2C99DFD1FEA08461A9B0D104 /* DeviceHardware.json in Resources */,
@@ -1375,27 +1320,6 @@
 			isa = PBXTargetDependency;
 			target = FEF4168AE260CFE34C972EBB /* Meshtastic */;
 			targetProxy = D28FD0EC2A7A271CF7A6C3A5 /* PBXContainerItemProxy */;
-		};
-		9F8D08FE8C3920E29BC0C051 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = C4BC64E061C609D15F5DFAF5 /* Meshtastic Watch App */;
-			targetProxy = 7641B817BB20E264D0A5E4E5 /* PBXContainerItemProxy */;
-		};
-		9FFAEA9121B6A0A05F35FE59 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilters = (
-				ios,
-				xros,
-			);
-			target = A2F1595BC848E48B138C58E1 /* WidgetsExtension */;
-			targetProxy = 0C865737C7AD7739BD8C50B0 /* PBXContainerItemProxy */;
-		};
-		EF933905B09CC60AA749AC97 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = ios;
-			target = C92DCD5C1ED45374936973F2 /* MeshtasticMessages */;
-			targetProxy = 7A8108924780106AB29B257B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1940,7 +1864,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				EXCLUDED_SOURCE_FILE_NAMES = "README.md model_manifest.json";
 				INFOPLIST_FILE = Meshtastic/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Meshtastic;
+				INFOPLIST_KEY_CFBundleDisplayName = Sambung;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1995,7 +1919,7 @@
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				EXCLUDED_SOURCE_FILE_NAMES = "README.md model_manifest.json";
 				INFOPLIST_FILE = Meshtastic/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Meshtastic;
+				INFOPLIST_KEY_CFBundleDisplayName = Sambung;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (

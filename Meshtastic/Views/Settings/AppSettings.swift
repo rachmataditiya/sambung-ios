@@ -65,8 +65,9 @@ struct AppSettings: View {
 							Label("Automatically Connect", systemImage: "app.connected.to.app.below.fill")
 						}
 					}
-#if targetEnvironment(macCatalyst)
-					// App Icon Picker is disabled on macOS Catalyst
+#if targetEnvironment(macCatalyst) || true
+					// App Icon Picker is disabled on macOS Catalyst.
+					// Sambung: disabled everywhere, the alternate icons carried the Meshtastic mark.
 #else
 					Button {
 						isPresentingAppIconSheet.toggle()

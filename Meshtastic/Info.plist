@@ -9,7 +9,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Meshtastic</string>
+	<string>Sambung</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
