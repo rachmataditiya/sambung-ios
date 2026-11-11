@@ -165,16 +165,8 @@
 "Belum tersambung ke radio": "No radio connected",
 "Perekaman tidak bisa dimulai.": "Recording could not start.",
 "Rekaman terlalu pendek. Tahan sedikit lebih lama.": "The recording is too short. Hold a little longer.",
-"Kirim pesan suara": "Send voice message",
 "Pesan suara tidak bisa dikirim ke channel ini": "Voice messages cannot be sent to this channel",
 "Satu pesan suara memakai radio puluhan detik dan semua orang di channel publik harus menunggu. Kirim lewat pesan langsung atau channel privat.": "One voice message keeps the radio busy for tens of seconds, and everyone on a public channel has to wait. Send it in a direct message or a private channel.",
-"Rekam": "Record",
-"Dengarkan": "Listen",
-"Ulangi": "Redo",
-"Paling lama %lld detik. Bicara dekat ke mikrofon.": "Up to %lld seconds. Speak close to the microphone.",
-"Merekam…": "Recording…",
-"Dengarkan dulu: begitulah suaranya di penerima. Terkirim dalam kira-kira %lld detik.": "Listen first: this is how it will sound to them. It takes about %lld seconds to send.",
-"Sambung belum diizinkan memakai mikrofon. Izinkan di Pengaturan iPhone.": "Sambung is not allowed to use the microphone yet. Allow it in iPhone Settings.",
 "Hentikan pesan suara": "Stop voice message",
 "Putar pesan suara": "Play voice message",
 "Alat": "Tools",
@@ -196,5 +188,8 @@
 "Ulangi tiap %lld menit": "Repeat every %lld minutes",
 "Pesan diulang dengan posisi terbaru dan berhenti sendiri setelah satu jam.": "The message repeats with your latest position and stops by itself after an hour.",
 "SOS": "SOS",
-"Data teknis": "Technical data"
+"Data teknis": "Technical data",
+"Tahan untuk bicara": "Hold to talk",
+"Lepas untuk kirim, geser ke kiri untuk batal": "Let go to send, slide left to cancel",
+"Lepas untuk batal": "Let go to cancel"
 }

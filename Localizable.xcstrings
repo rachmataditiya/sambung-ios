@@ -177311,6 +177311,54 @@
           }
         }
       }
+    },
+    "Tahan untuk bicara" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold to talk"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tahan untuk bicara"
+          }
+        }
+      }
+    },
+    "Lepas untuk kirim, geser ke kiri untuk batal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let go to send, slide left to cancel"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lepas untuk kirim, geser ke kiri untuk batal"
+          }
+        }
+      }
+    },
+    "Lepas untuk batal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Let go to cancel"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lepas untuk batal"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

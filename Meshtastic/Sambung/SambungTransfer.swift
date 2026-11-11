@@ -183,6 +183,10 @@ final class SambungTransfer {
 			if let file = entry.assembler.file() {
 				store.store(file, for: recordKey, record: record)
 				entry.finished = true
+				// Push to talk: a clip for the conversation on screen is heard as it lands.
+				if manifest.kind == .voice {
+					SambungVoicePlayback.shared.arrived(file, from: from, isDirect: entry.isDirect, channel: entry.channel)
+				}
 				if entry.isDirect { reply(.complete(id: id), to: from, accessoryManager: accessoryManager) }
 				NotificationCenter.default.post(name: .meshMessagesDidChange, object: nil)
 			} else {

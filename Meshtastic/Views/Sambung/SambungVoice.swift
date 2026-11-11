@@ -2,8 +2,8 @@
 //  SambungVoice.swift
 //  Sambung
 //
-//  Voice messages: record up to ten seconds, hear what the other side will hear, send; and
-//  the player inside a message bubble.
+//  Voice messages, push to talk: hold the button to record up to ten seconds, let go to send.
+//  A clip that arrives for the open conversation plays at once; the bubble can replay it.
 //
 import AVFoundation
 import OSLog
@@ -18,6 +18,8 @@ final class SambungVoiceRecorder: NSObject, ObservableObject {
 	@Published private(set) var elapsed: TimeInterval = 0
 	/// The clip after encoding and decoding again: exactly what the recipient will hear.
 	private(set) var encoded = Data()
+	/// Cleared when the talk button is let go, so a late permission answer does not start recording.
+	var isWanted = true
 
 	private var recorder: AVAudioRecorder?
 	private var player: AVAudioPlayer?
@@ -32,6 +34,8 @@ final class SambungVoiceRecorder: NSObject, ObservableObject {
 					self.state = .denied
 					return
 				}
+				// The microphone prompt can outlast the press that asked for it.
+				guard self.isWanted else { return }
 				self.beginRecording()
 			}
 		}
@@ -116,130 +120,107 @@ final class SambungVoiceRecorder: NSObject, ObservableObject {
 	}
 }
 
-/// The microphone button next to the photo button.
-struct SambungVoiceButton: View {
-	@EnvironmentObject private var accessoryManager: AccessoryManager
-	let destination: MessageDestination
-	@State private var isRecording = false
-	@State private var isShowingNotAllowed = false
-
-	var body: some View {
-		Button {
-			if SambungTransfer.isAllowed(destination) { isRecording = true } else { isShowingNotAllowed = true }
-		} label: {
-			Image(systemName: "mic")
-				.font(.subheadline)
-				.padding(8)
-				.background(Color(.secondarySystemBackground), in: Circle())
-		}
-		.buttonStyle(.plain)
-		.accessibilityLabel("Kirim pesan suara")
-		.sheet(isPresented: $isRecording) {
-			SambungVoiceSheet(destination: destination)
-				.environmentObject(accessoryManager)
-		}
-		.alert("Pesan suara tidak bisa dikirim ke channel ini", isPresented: $isShowingNotAllowed) {
-			Button("Mengerti", role: .cancel) {}
-		} message: {
-			Text("Satu pesan suara memakai radio puluhan detik dan semua orang di channel publik harus menunggu. Kirim lewat pesan langsung atau channel privat.")
-		}
-	}
+/// What the bar above the message field shows while the talk button is held.
+struct SambungTalkState: Equatable {
+	var elapsed: TimeInterval
+	/// The finger slid away: letting go now throws the recording away.
+	var willCancel: Bool
 }
 
-private struct SambungVoiceSheet: View {
+/// Push to talk: hold to record, let go to send, slide left to cancel. There is no second step,
+/// so a voice message is as quick as on a handheld radio.
+struct SambungTalkButton: View {
 	@EnvironmentObject private var accessoryManager: AccessoryManager
-	@Environment(\.dismiss) private var dismiss
-	@StateObject private var recorder = SambungVoiceRecorder()
 	let destination: MessageDestination
-	@State private var errorText: String?
+	@Binding var talk: SambungTalkState?
+	@StateObject private var recorder = SambungVoiceRecorder()
+	@State private var isPressed = false
+	@State private var willCancel = false
+	@State private var isShowingNotAllowed = false
+
+	/// How far left the finger has to slide for letting go to mean cancel.
+	static let cancelDistance: CGFloat = 70
 
 	var body: some View {
-		NavigationStack {
-			VStack(spacing: 24) {
-				Spacer(minLength: 0)
-				Text(verbatim: SambungVoiceCodec.durationText(recorder.elapsed))
-					.font(.system(size: 56, weight: .semibold, design: .rounded))
-					.monospacedDigit()
-					.foregroundStyle(recorder.state == .recording ? SambungTheme.bata : Color.primary)
-
-				ProgressView(value: min(recorder.elapsed, Double(SambungVoiceCodec.maxSeconds)), total: Double(SambungVoiceCodec.maxSeconds))
-					.tint(SambungTheme.kunyit)
-					.padding(.horizontal, 40)
-
-				controls
-
-				Text(verbatim: hint)
-					.font(.footnote)
-					.foregroundStyle(.secondary)
-					.multilineTextAlignment(.center)
-					.padding(.horizontal, 24)
-				if let errorText {
-					Text(verbatim: errorText).font(.footnote).foregroundStyle(SambungTheme.bata)
-				}
-				Spacer(minLength: 0)
+		Image(systemName: isPressed ? "mic.fill" : "mic")
+			.font(.title3)
+			.foregroundStyle(isPressed ? Color.white : Color.accentColor)
+			.frame(width: 48, height: 36)
+			.background(isPressed ? SambungTheme.bata : Color(.secondarySystemBackground), in: Capsule())
+			.scaleEffect(isPressed ? 1.2 : 1)
+			.animation(.snappy, value: isPressed)
+			.contentShape(Capsule())
+			.gesture(
+				DragGesture(minimumDistance: 0)
+					.onChanged { value in
+						if !isPressed { press() }
+						willCancel = value.translation.width < -Self.cancelDistance
+					}
+					.onEnded { _ in release() }
+			)
+			.sensoryFeedback(.impact, trigger: isPressed)
+			.onChange(of: recorder.state) { _, state in finished(state) }
+			.onChange(of: recorder.elapsed) { publish() }
+			.onChange(of: willCancel) { publish() }
+			.accessibilityLabel("Tahan untuk bicara")
+			.accessibilityHint("Lepas untuk kirim, geser ke kiri untuk batal")
+			.accessibilityAddTraits(.isButton)
+			.alert("Pesan suara tidak bisa dikirim ke channel ini", isPresented: $isShowingNotAllowed) {
+				Button("Mengerti", role: .cancel) {}
+			} message: {
+				Text("Satu pesan suara memakai radio puluhan detik dan semua orang di channel publik harus menunggu. Kirim lewat pesan langsung atau channel privat.")
 			}
-			.navigationTitle("Pesan suara")
-			.navigationBarTitleDisplayMode(.inline)
-			.toolbar {
-				ToolbarItem(placement: .cancellationAction) { Button("Batal") { dismiss() } }
-				ToolbarItem(placement: .confirmationAction) {
-					Button("Kirim", action: send).disabled(recorder.state != .recorded)
-				}
-			}
-		}
-		.presentationDetents([.medium])
-		.onDisappear { recorder.reset() }
 	}
 
-	@ViewBuilder
-	private var controls: some View {
-		switch recorder.state {
-		case .idle, .denied, .failed:
-			bigButton("Rekam", symbol: "mic.fill", tint: SambungTheme.bata) { recorder.start() }
-		case .recording:
-			bigButton("Selesai", symbol: "stop.fill", tint: SambungTheme.bata) { recorder.stop() }
-		case .recorded:
-			HStack(spacing: 28) {
-				bigButton("Dengarkan", symbol: "play.fill", tint: .accentColor) { recorder.playPreview() }
-				bigButton("Ulangi", symbol: "arrow.counterclockwise", tint: .secondary) { recorder.reset() }
-			}
-		}
-	}
-
-	private func bigButton(_ title: LocalizedStringKey, symbol: String, tint: Color, action: @escaping () -> Void) -> some View {
-		Button(action: action) {
-			VStack(spacing: 8) {
-				Image(systemName: symbol)
-					.font(.title)
-					.foregroundStyle(.white)
-					.frame(width: 72, height: 72)
-					.background(tint, in: Circle())
-				Text(title).font(.footnote).foregroundStyle(.primary)
-			}
-		}
-		.buttonStyle(.plain)
-	}
-
-	private var hint: String {
-		switch recorder.state {
-		case .idle: return sambungText("Paling lama %lld detik. Bicara dekat ke mikrofon.", SambungVoiceCodec.maxSeconds)
-		case .recording: return sambungText("Merekam…")
-		case .recorded:
-			let seconds = SambungTransfer.estimatedSeconds(forByteCount: recorder.encoded.count)
-			return sambungText("Dengarkan dulu: begitulah suaranya di penerima. Terkirim dalam kira-kira %lld detik.", seconds)
-		case .denied: return sambungText("Sambung belum diizinkan memakai mikrofon. Izinkan di Pengaturan iPhone.")
-		case let .failed(message): return message
-		}
-	}
-
-	private func send() {
-		guard accessoryManager.isConnected else {
-			errorText = sambungText("Belum tersambung ke radio.")
+	private func press() {
+		isPressed = true
+		willCancel = false
+		guard SambungTransfer.isAllowed(destination) else {
+			isShowingNotAllowed = true
 			return
 		}
-		let clip = recorder.encoded, destination = destination, manager = accessoryManager
+		recorder.isWanted = true
+		recorder.start()
+		publish()
+	}
+
+	private func release() {
+		guard isPressed else { return }
+		isPressed = false
+		recorder.isWanted = false
+		if recorder.state == .recording {
+			recorder.stop() // ends in .recorded or .failed, handled in finished(_:)
+		} else {
+			// Let go before recording began (the microphone prompt), or after the ten seconds ran out.
+			recorder.reset()
+			talk = nil
+		}
+	}
+
+	private func finished(_ state: SambungVoiceRecorder.State) {
+		switch state {
+		case .recorded:
+			if !willCancel { send(recorder.encoded) }
+			recorder.reset()
+			talk = nil
+		case .failed, .denied:
+			// Too short to be a message, or no microphone: nothing to send.
+			recorder.reset()
+			talk = nil
+		case .idle, .recording:
+			break
+		}
+	}
+
+	private func publish() {
+		talk = isPressed ? SambungTalkState(elapsed: recorder.elapsed, willCancel: willCancel) : nil
+	}
+
+	private func send(_ clip: Data) {
+		guard accessoryManager.isConnected, !clip.isEmpty else { return }
+		let destination = destination, manager = accessoryManager
 		let placeholder = SambungVoiceCodec.placeholder(seconds: SambungVoiceCodec.seconds(forByteCount: clip.count))
-		// The transfer runs on after the sheet closes; progress shows in the bubble.
+		// The transfer runs on; progress shows in the bubble.
 		Task {
 			do {
 				try await SambungTransfer.shared.send(
@@ -250,7 +231,60 @@ private struct SambungVoiceSheet: View {
 				Logger.mesh.error("Sambung voice send failed: \(error.localizedDescription, privacy: .public)")
 			}
 		}
-		dismiss()
+	}
+}
+
+/// Covers the quick replies while talking: how long so far, and what letting go will do.
+struct SambungTalkStrip: View {
+	let state: SambungTalkState
+
+	var body: some View {
+		HStack(spacing: 10) {
+			Circle()
+				.fill(SambungTheme.bata)
+				.frame(width: 10, height: 10)
+				.symbolEffect(.pulse)
+			Text(verbatim: SambungVoiceCodec.durationText(state.elapsed))
+				.font(.headline)
+				.monospacedDigit()
+			Spacer(minLength: 8)
+			Text(state.willCancel ? "Lepas untuk batal" : "Lepas untuk kirim, geser ke kiri untuk batal")
+				.font(.footnote)
+				.foregroundStyle(state.willCancel ? SambungTheme.bata : Color.secondary)
+				.lineLimit(1)
+				.minimumScaleFactor(0.8)
+		}
+		.padding(.horizontal, 12)
+		.frame(maxWidth: .infinity, maxHeight: .infinity)
+		.background(Color(.systemBackground))
+		.accessibilityElement(children: .combine)
+	}
+}
+
+/// Plays a voice clip the moment it arrives for the conversation on screen, like a handheld
+/// radio; other clips wait for their play button.
+@MainActor
+final class SambungVoicePlayback {
+	static let shared = SambungVoicePlayback()
+
+	/// The conversation on screen.
+	var open: SambungRoute?
+	private var player: AVAudioPlayer?
+
+	nonisolated static func shouldPlay(open: SambungRoute?, from: Int64, isDirect: Bool, channel: UInt32) -> Bool {
+		switch open {
+		case let .user(num): return isDirect && num == from
+		case let .channel(index): return !isDirect && UInt32(max(0, index)) == channel
+		case nil: return false
+		}
+	}
+
+	func arrived(_ clip: Data, from: Int64, isDirect: Bool, channel: UInt32) {
+		guard Self.shouldPlay(open: open, from: from, isDirect: isDirect, channel: channel) else { return }
+		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+		try? AVAudioSession.sharedInstance().setActive(true)
+		player = try? AVAudioPlayer(data: SambungVoiceCodec.wav(SambungVoiceCodec.decode(clip)))
+		player?.play()
 	}
 }
 

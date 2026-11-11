@@ -16,6 +16,10 @@ struct SambungConversation: View {
 	var body: some View {
 		content
 			.environment(\.sambungIsFinding, $isFinding)
+			.onAppear { SambungVoicePlayback.shared.open = route }
+			.onDisappear {
+				if SambungVoicePlayback.shared.open == route { SambungVoicePlayback.shared.open = nil }
+			}
 	}
 
 	@ViewBuilder

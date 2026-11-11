@@ -387,3 +387,19 @@ struct SambungSOSTests {
 		#expect(SambungSOS(defaults: defaults).interval == 60)
 	}
 }
+
+@Suite("Sambung push to talk")
+struct SambungPushToTalkTests {
+	@Test func aClipPlaysAtOnceOnlyForTheConversationOnScreen() {
+		// A direct clip from the person whose conversation is open.
+		#expect(SambungVoicePlayback.shouldPlay(open: .user(num: 7), from: 7, isDirect: true, channel: 0))
+		// From someone else, or sent to a channel while a direct conversation is open.
+		#expect(!SambungVoicePlayback.shouldPlay(open: .user(num: 7), from: 8, isDirect: true, channel: 0))
+		#expect(!SambungVoicePlayback.shouldPlay(open: .user(num: 7), from: 7, isDirect: false, channel: 0))
+		// A channel clip on the open channel, from anyone.
+		#expect(SambungVoicePlayback.shouldPlay(open: .channel(index: 2), from: 9, isDirect: false, channel: 2))
+		#expect(!SambungVoicePlayback.shouldPlay(open: .channel(index: 2), from: 9, isDirect: false, channel: 1))
+		// Nothing open: it waits for its play button.
+		#expect(!SambungVoicePlayback.shouldPlay(open: nil, from: 7, isDirect: true, channel: 0))
+	}
+}

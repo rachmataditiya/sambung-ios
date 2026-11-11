@@ -9,14 +9,30 @@ import SwiftUI
 struct SambungQuickReplyBar: View {
 	@ObservedObject private var store = SambungStore.shared
 	@State private var isEditing = false
+	@State private var talk: SambungTalkState?
 	let destination: MessageDestination
 	let onPick: (String) -> Void
 
 	var body: some View {
+		HStack(spacing: 8) {
+			// Push to talk sits outside the scrolling row, so holding and sliding it never scrolls.
+			SambungTalkButton(destination: destination, talk: $talk)
+				.padding(.leading, 15)
+			replies
+				.overlay {
+					if let talk { SambungTalkStrip(state: talk) }
+				}
+		}
+		.padding(.top, 8)
+		.sheet(isPresented: $isEditing) {
+			SambungQuickReplyEditor()
+		}
+	}
+
+	private var replies: some View {
 		ScrollView(.horizontal, showsIndicators: false) {
 			HStack(spacing: 8) {
 				SambungPhotoButton(destination: destination)
-				SambungVoiceButton(destination: destination)
 				ForEach(store.quickReplies, id: \.self) { reply in
 					Button {
 						onPick(reply)
@@ -41,11 +57,7 @@ struct SambungQuickReplyBar: View {
 				.buttonStyle(.plain)
 				.accessibilityLabel("Atur balasan cepat")
 			}
-			.padding(.horizontal, 15)
-			.padding(.top, 8)
-		}
-		.sheet(isPresented: $isEditing) {
-			SambungQuickReplyEditor()
+			.padding(.trailing, 15)
 		}
 	}
 }
