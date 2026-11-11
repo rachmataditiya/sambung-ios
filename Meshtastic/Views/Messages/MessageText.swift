@@ -108,7 +108,7 @@ struct MessageText: View {
 			in: message.displayedMarkdownPayload,
 			context: context
 		)
-		return Group {
+		return SambungMediaSlot(fromNum: message.fromUser?.num, messageID: message.messageId, isCurrentUser: isCurrentUser) {
 			if let coordinate = SambungLocationMessage.coordinate(in: message.messagePayload ?? "") {
 				SambungLocationBubble(coordinate: coordinate, isCurrentUser: isCurrentUser)
 			} else if let attributed = try? AttributedString(markdown: payload, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {

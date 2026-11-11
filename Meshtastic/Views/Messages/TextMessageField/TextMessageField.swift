@@ -23,7 +23,7 @@ struct TextMessageField: View {
 	var body: some View {
 		VStack(spacing: 0) {
 			if typingMessage.isEmpty && replyMessageId == 0 {
-				SambungQuickReplyBar { reply in
+				SambungQuickReplyBar(destination: destination) { reply in
 					typingMessage = reply
 					sendMessage()
 				}

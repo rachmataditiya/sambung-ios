@@ -1158,6 +1158,8 @@ class AccessoryManager: ObservableObject, MqttClientProxyManagerDelegate {
 					Logger.mesh.info("[Zero Positioning System] packet received from \(packet.from.toHex(), privacy: .public)")
 				case .privateApp:
 					Logger.mesh.info("[Private] packet received from \(packet.from.toHex(), privacy: .public)")
+					// Sambung: photos and voice clips arrive on this port.
+					SambungTransfer.shared.handle(packet, accessoryManager: self)
 				case .atakForwarder:
 					handleATAKForwarderPacket(packet)
 				case .simulatorApp:

@@ -1,4 +1,5 @@
 import CoreLocation
+import UIKit
 import Foundation
 import Testing
 @testable import Meshtastic
@@ -155,5 +156,146 @@ struct SambungOutboxTests {
 		#expect(!SambungOutbox.shouldRetry(heard, attempts: spent, now: sent.addingTimeInterval(3600)))
 		let nextDay = SambungOutbox.Candidate(sentAt: sent, audienceLastHeard: sent.addingTimeInterval(90_000))
 		#expect(!SambungOutbox.shouldRetry(nextDay, attempts: .init(), now: sent.addingTimeInterval(90_100)))
+	}
+}
+
+@Suite("Sambung transfer wire")
+struct SambungTransferWireTests {
+	private func file(_ count: Int) -> Data { Data((0..<count).map { UInt8(truncatingIfNeeded: $0 &* 31 &+ 7) }) }
+
+	private func packets(_ count: Int) throws -> [SambungTransferWire.Packet] {
+		try SambungTransferWire.packets(for: file(count), id: 0xBEEF, kind: .image, codec: 1, messageID: 0xDEADBEEF)
+	}
+
+	@Test("A file survives being cut, encoded, shuffled, duplicated and reassembled", arguments: [1, 183, 184, 1000, 4668])
+	func roundTrip(count: Int) throws {
+		let sent = try packets(count)
+		var assembler = SambungTransferWire.Assembler()
+		for packet in (sent + sent.prefix(2)).shuffled() {
+			let wire = SambungTransferWire.encode(packet)
+			#expect(wire.count <= SambungTransferWire.maxPacketSize)
+			assembler.add(try #require(SambungTransferWire.decode(wire)))
+		}
+		#expect(assembler.missing.isEmpty)
+		#expect(assembler.file() == file(count))
+		#expect(assembler.manifest?.messageID == 0xDEADBEEF)
+	}
+
+	@Test("Packet counts at the size boundaries")
+	func chunking() throws {
+		#expect(try packets(183).count == 1)
+		#expect(try packets(184).count == 2)
+		#expect(try packets(4668).count == SambungTransferWire.maxChunks)
+		#expect(throws: SambungTransferWire.WireError.self) { try packets(4669) }
+		#expect(throws: SambungTransferWire.WireError.self) { try packets(0) }
+	}
+
+	@Test("Lost chunks are named, and the file is withheld until they arrive")
+	func missingChunks() throws {
+		let sent = try packets(1000)
+		var assembler = SambungTransferWire.Assembler()
+		assembler.add(sent[2])
+		#expect(assembler.missing == [0]) // no manifest yet: only it can be asked for
+		assembler.add(sent[0])
+		assembler.add(sent[4])
+		#expect(assembler.missing == [1, 3, 5])
+		#expect(assembler.file() == nil)
+		#expect(!assembler.isCorrupt)
+		for index in [1, 3, 5] { assembler.add(sent[index]) }
+		#expect(assembler.file() == file(1000))
+	}
+
+	@Test("A damaged chunk fails the checksum instead of producing a broken file")
+	func corruption() throws {
+		let sent = try packets(600)
+		var assembler = SambungTransferWire.Assembler()
+		for packet in sent { assembler.add(packet) }
+		assembler.add(.chunk(id: 0xBEEF, index: 1, data: Data(repeating: 0, count: 195)))
+		#expect(assembler.file() == nil)
+		#expect(assembler.isCorrupt)
+	}
+
+	@Test("Requests and completions round-trip, and foreign packets are ignored")
+	func control() {
+		let request = SambungTransferWire.Packet.request(id: 7, missing: [1, 3, 5])
+		#expect(SambungTransferWire.decode(SambungTransferWire.encode(request)) == request)
+		#expect(SambungTransferWire.decode(SambungTransferWire.encode(.complete(id: 7))) == .complete(id: 7))
+		#expect(SambungTransferWire.decode(Data("hello mesh".utf8)) == nil)
+		#expect(SambungTransferWire.decode(Data([0x53, 9, 0, 1])) == nil)
+		#expect(SambungTransferWire.decode(Data([0x53, 3, 0, 1, 4, 1])) == nil) // count says 4, one given
+		#expect(SambungTransferWire.decode(Data()) == nil)
+	}
+}
+
+@Suite("Sambung image codec")
+struct SambungImageCodecTests {
+	/// A 1200×900 photo-like image: gradients plus noise, which compresses like a real picture.
+	private func photo() throws -> Data {
+		let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1200, height: 900))
+		let image = renderer.image { context in
+			var generator = SystemRandomNumberGenerator()
+			for row in 0..<45 {
+				for column in 0..<60 {
+					UIColor(hue: CGFloat(column) / 60, saturation: 0.6, brightness: CGFloat.random(in: 0.3...1, using: &generator), alpha: 1).setFill()
+					context.fill(CGRect(x: column * 20, y: row * 20, width: 20, height: 20))
+				}
+			}
+		}
+		return try #require(image.jpegData(compressionQuality: 0.9))
+	}
+
+	@Test("Every size fits its byte budget and decodes at its pixel size", arguments: SambungImageCodec.Size.allCases)
+	func fitsBudget(size: SambungImageCodec.Size) throws {
+		let encoded = try #require(SambungImageCodec.encode(try photo(), size: size))
+		#expect(encoded.data.count <= size.maxBytes)
+		let image = try #require(UIImage(data: encoded.data))
+		#expect(Int(max(image.size.width, image.size.height) * image.scale) == size.maxPixel)
+		// And what the codec makes, the transfer format can carry.
+		#expect(throws: Never.self) {
+			try SambungTransferWire.packets(for: encoded.data, id: 1, kind: .image, codec: encoded.codec, messageID: 1)
+		}
+	}
+
+	@Test("Something that is not an image is refused")
+	func notAnImage() {
+		#expect(SambungImageCodec.encode(Data("not a picture".utf8), size: .small) == nil)
+	}
+}
+
+@Suite("Sambung voice codec")
+struct SambungVoiceCodecTests {
+	private func tone(seconds: Double) -> [Int16] {
+		(0..<Int(seconds * 8000)).map { Int16(9000 * sin(2 * Double.pi * 280 * Double($0) / 8000)) }
+	}
+
+	@Test("Ten seconds is 1000 bytes and fits one transfer")
+	func tenSeconds() throws {
+		let clip = SambungVoiceCodec.encode(tone(seconds: 10))
+		#expect(clip.count == 1000)
+		#expect(SambungVoiceCodec.seconds(forByteCount: clip.count) == 10)
+		let packets = try SambungTransferWire.packets(for: clip, id: 9, kind: .voice, codec: SambungVoiceCodec.codec2Mode700C, messageID: 1)
+		#expect(packets.count == 6)
+	}
+
+	@Test("A partial last frame is padded, and decoding returns whole frames of sound")
+	func roundTrip() {
+		let clip = SambungVoiceCodec.encode(tone(seconds: 1.01))
+		#expect(clip.count == 26 * SambungVoiceCodec.bytesPerFrame) // 25.25 frames round up
+		let decoded = SambungVoiceCodec.decode(clip)
+		#expect(decoded.count == 26 * SambungVoiceCodec.samplesPerFrame)
+		let loudness = (decoded.suffix(4000).reduce(0.0) { $0 + Double($1) * Double($1) } / 4000).squareRoot()
+		#expect(loudness > 500)
+		#expect(SambungVoiceCodec.encode([]).isEmpty)
+		#expect(SambungVoiceCodec.decode(Data([1, 2, 3])).isEmpty)
+	}
+
+	@Test("Duration text and the WAV header")
+	func formatting() {
+		#expect(SambungVoiceCodec.durationText(7.2) == "0:07")
+		#expect(SambungVoiceCodec.placeholder(seconds: 10) == "🎤 Pesan suara 0:10")
+		let wav = SambungVoiceCodec.wav([0, 1, -1])
+		#expect(wav.count == 44 + 6)
+		#expect(String(decoding: wav.prefix(4), as: UTF8.self) == "RIFF")
+		#expect(wav[40] == 6) // data chunk length, little-endian
 	}
 }

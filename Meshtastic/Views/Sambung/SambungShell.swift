@@ -76,7 +76,19 @@ struct SambungShell: View {
 			.tabItem { Label("Perangkat", systemImage: "antenna.radiowaves.left.and.right") }
 			.tag(Section.device)
 		}
-		.task { SambungOutbox.shared.start(accessoryManager: accessoryManager) }
+		.task {
+			SambungOutbox.shared.start(accessoryManager: accessoryManager)
+			#if DEBUG
+			// Screenshot tooling: SAMBUNG_START=chat|device picks the tab a simulator launch opens on.
+			// Waits a moment: the demo seed sets its own tab as the window appears.
+			try? await Task.sleep(for: .seconds(1))
+			switch ProcessInfo.processInfo.environment["SAMBUNG_START"] {
+			case "chat": router.selectedTab = .messages
+			case "device": router.selectedTab = .connect
+			default: break
+			}
+			#endif
+		}
 	}
 }
 

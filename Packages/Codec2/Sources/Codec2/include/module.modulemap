@@ -1,0 +1,4 @@
+module Codec2 {
+	header "codec2.h"
+	export *
+}

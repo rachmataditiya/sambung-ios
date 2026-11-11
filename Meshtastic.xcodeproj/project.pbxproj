@@ -11,10 +11,11 @@
 		066F0545C2EDA31CC6E95E4E /* PMTilesArchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C4205D1043768766C64E87 /* PMTilesArchive.swift */; };
 		073B94B7F2F232C198151489 /* alpha.png in Resources */ = {isa = PBXBuildFile; fileRef = E8849D542B45F20F349E004D /* alpha.png */; };
 		073D5EF20134D41DF2AC5993 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C15787882CA30C9787154D /* Logger.swift */; };
+		08614FAD15A39AB21B99B4EE /* MVTTools in Frameworks */ = {isa = PBXBuildFile; productRef = 4FB45004C563B59043C53EAA /* MVTTools */; };
 		0D14B1F2EE824455A78690F8 /* MVTTools in Frameworks */ = {isa = PBXBuildFile; productRef = 99BACD26F50E4FBA1E2FC365 /* MVTTools */; };
-		128FDEAAE0542475BC4A3EDD /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = C853ED2A7F391E6F315F93B3 /* Markdown */; };
+		128FDEAAE0542475BC4A3EDD /* SwiftDraw in Frameworks */ = {isa = PBXBuildFile; productRef = 9D120B166CA191FC578A9978 /* SwiftDraw */; };
 		13FAC446423FF3C9AC737EA0 /* PMTilesMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB006125B378C5233BD0B731 /* PMTilesMapView.swift */; };
-		1A042BDE2702C7388CE867EF /* DatadogLogs in Frameworks */ = {isa = PBXBuildFile; productRef = 7F3F27310C566077475C7105 /* DatadogLogs */; };
+		1A042BDE2702C7388CE867EF /* DatadogCrashReporting in Frameworks */ = {isa = PBXBuildFile; productRef = 43547F7F6DDB3842969DA369 /* DatadogCrashReporting */; };
 		1F6C54C9333DB13E75830B91 /* CocoaMQTT in Frameworks */ = {isa = PBXBuildFile; productRef = 5F878D11CC8A8E494A4A51B5 /* CocoaMQTT */; };
 		252DC3E6757A4880B3F749E5 /* MeshtasticApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 736C4EF819FC0D5D1A41F29F /* MeshtasticApp.swift */; };
 		2A2B197368D6F590D0CA37A8 /* swiftdata-schema-history in Resources */ = {isa = PBXBuildFile; fileRef = 5601BE0179CCEE8ABFF0B8B6 /* swiftdata-schema-history */; };
@@ -22,7 +23,7 @@
 		31188367797815C745AA63C5 /* docs in Resources */ = {isa = PBXBuildFile; fileRef = 6B3F64B089C3A398FEBE6C9C /* docs */; };
 		3233E2EC4CCC91360E23F283 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F17AFA19C2AAB3C3ADFB1E33 /* AppState.swift */; };
 		33007286B0A108FF6655CC25 /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 69904575C8FBB8A536663F9E /* MeshtasticProtobufs */; };
-		3F091ECD7900D90169754B93 /* DatadogCrashReporting in Frameworks */ = {isa = PBXBuildFile; productRef = 43547F7F6DDB3842969DA369 /* DatadogCrashReporting */; };
+		3F091ECD7900D90169754B93 /* DatadogCore in Frameworks */ = {isa = PBXBuildFile; productRef = 680CA066D5A5ECD529461B91 /* DatadogCore */; };
 		41FB0099786769C56C465E58 /* mqtt_roots.json in Resources */ = {isa = PBXBuildFile; fileRef = 391CFE3B9D9A0171B3C3C8E9 /* mqtt_roots.json */; };
 		4584CB8BEA4226A1154EB385 /* OfflineMapManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E531C14ABE7F1491959BBE3 /* OfflineMapManager.swift */; };
 		4701C2F3A8A60ADE516D7FA0 /* MeshtasticTAK in Frameworks */ = {isa = PBXBuildFile; productRef = F98E8431879FC7025B658B08 /* MeshtasticTAK */; };
@@ -31,12 +32,12 @@
 		4C7B7A10656B89865C999052 /* WriteContinuationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 122531D8C1D7CC809C6EF3B7 /* WriteContinuationStore.swift */; };
 		4E0EA928F0EBE41EDA6FC93B /* OfflineMapImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7307ED073D77037E45EE89 /* OfflineMapImport.swift */; };
 		507A9C886BD3A8F135F15762 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A80E1960A69051EE698AAE97 /* Preview Assets.xcassets */; };
-		54D8BBD62304C5917AEE0C2B /* DatadogCore in Frameworks */ = {isa = PBXBuildFile; productRef = 680CA066D5A5ECD529461B91 /* DatadogCore */; };
+		54D8BBD62304C5917AEE0C2B /* CinemaContent in Frameworks */ = {isa = PBXBuildFile; platformFilters = (xros, ); productRef = BE8554B70C67001BB668CC50 /* CinemaContent */; };
 		5631740093D563F017DA31D7 /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 52CBDF2188BAF9E2FB8B10A1 /* MeshtasticProtobufs */; };
 		563422694131128F504A5E05 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94055F00D3E29383E92FF74 /* Color.swift */; };
 		597DA0CDA9930BC262A72FCA /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 26351F51CD01C94D8D82486A /* Localizable.xcstrings */; };
 		5C31297EDE4B7294ECE538F4 /* AppIconDebug.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6D159B66B1877A7506D1AB20 /* AppIconDebug.icon */; };
-		62715BFE38AD10319684E8E4 /* MVTTools in Frameworks */ = {isa = PBXBuildFile; productRef = 4FB45004C563B59043C53EAA /* MVTTools */; };
+		62715BFE38AD10319684E8E4 /* Markdown in Frameworks */ = {isa = PBXBuildFile; productRef = C853ED2A7F391E6F315F93B3 /* Markdown */; };
 		62C11A4D1644062EAD31615F /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = F15A1577564640951AD3EA40 /* Settings.bundle */; };
 		66EFBB4E473C796ACAFF58C2 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 6776764BA24154B603C76018 /* AppIcon.icon */; };
 		6742E3665676C65DDE17C453 /* Meshtastic.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4C621B0715362CE25600901D /* Meshtastic.xcdatamodeld */; };
@@ -47,7 +48,7 @@
 		94F9F3199DB5429EBF21F9E9 /* Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0875C7B0694DBE671437CC1A /* Connection.swift */; };
 		977E69BC7382DA7EF386402F /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FA5EE6E2E5628082C9CF53F /* TCPConnection.swift */; };
 		987BD8AFF176A9670F175E5C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 26351F51CD01C94D8D82486A /* Localizable.xcstrings */; };
-		9B61C796B61232F1226AAA28 /* CinemaContent in Frameworks */ = {isa = PBXBuildFile; platformFilters = (xros, ); productRef = BE8554B70C67001BB668CC50 /* CinemaContent */; };
+		9B61C796B61232F1226AAA28 /* Codec2 in Frameworks */ = {isa = PBXBuildFile; productRef = 556166322BF33C9E9507905D /* Codec2 */; };
 		A98F34F7728746DA306D0C1A /* CircleText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D05DC325F033D282A72589F /* CircleText.swift */; };
 		B80DB8962DBDE2284BC9664A /* urls.json in Resources */ = {isa = PBXBuildFile; fileRef = B079D165838E646EE754DC6E /* urls.json */; };
 		B97B830773C8597258C1A96F /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 838679D32875D367B9FC8FBF /* MeshtasticProtobufs */; };
@@ -55,14 +56,14 @@
 		C5B1D5B4B38940E115D61856 /* ShowcaseContent in Frameworks */ = {isa = PBXBuildFile; platformFilters = (xros, ); productRef = 854C16DCEE2F871D2485DEE3 /* ShowcaseContent */; };
 		C6148418734B3ADB2741CB8E /* PMTilesExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9297A8F3E4AAC1F74C05844 /* PMTilesExtractor.swift */; };
 		ECF8A4938BAD87D6CD830F7A /* MeshtasticAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F2AD74F4ECBF91E5BE6275 /* MeshtasticAppDelegate.swift */; };
-		EFEED2F4EF7D9B1BB657458A /* DatadogRUM in Frameworks */ = {isa = PBXBuildFile; productRef = E96998AD4B79F29AF1E2A6D2 /* DatadogRUM */; };
-		F05DFDBFD6588DFEB6AD621F /* NordicDFU in Frameworks */ = {isa = PBXBuildFile; productRef = D83D0451F77A9D92FFC852CA /* NordicDFU */; };
+		EFEED2F4EF7D9B1BB657458A /* DatadogLogs in Frameworks */ = {isa = PBXBuildFile; productRef = 7F3F27310C566077475C7105 /* DatadogLogs */; };
+		F05DFDBFD6588DFEB6AD621F /* DatadogTrace in Frameworks */ = {isa = PBXBuildFile; productRef = 3E5E35695D4334FDDA3BE8F2 /* DatadogTrace */; };
 		F11D4AB6E3A799DEB883AC14 /* NodeDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074A4F4A084E3897FDDE16FB /* NodeDiscovery.swift */; };
 		F494AA4C9783F0E204B12D62 /* Kp1812 in Frameworks */ = {isa = PBXBuildFile; productRef = 55C660587FB0A7D904F89E6D /* Kp1812 */; };
 		F8D2F62028A2A100CDB80F82 /* MeshtasticProtobufs in Frameworks */ = {isa = PBXBuildFile; productRef = 4AF5AACBB64F141EF02FC7DC /* MeshtasticProtobufs */; };
-		F8E5A8CEE6E96D5D53F6F851 /* DatadogTrace in Frameworks */ = {isa = PBXBuildFile; productRef = 3E5E35695D4334FDDA3BE8F2 /* DatadogTrace */; };
+		F8E5A8CEE6E96D5D53F6F851 /* DatadogRUM in Frameworks */ = {isa = PBXBuildFile; productRef = E96998AD4B79F29AF1E2A6D2 /* DatadogRUM */; };
 		FF64E74D859119DFCC57BD80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CC33262B2EA2E8463E8BE95 /* Assets.xcassets */; };
-		FFBFB6ED7A28837B22E688F1 /* SwiftDraw in Frameworks */ = {isa = PBXBuildFile; productRef = 9D120B166CA191FC578A9978 /* SwiftDraw */; };
+		FFBFB6ED7A28837B22E688F1 /* NordicDFU in Frameworks */ = {isa = PBXBuildFile; productRef = D83D0451F77A9D92FFC852CA /* NordicDFU */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -173,6 +174,7 @@
 		B5CE7E1EEA0E7E9ED7E764F6 /* ShowcaseContent */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ShowcaseContent; path = Packages/ShowcaseContent; sourceTree = SOURCE_ROOT; };
 		B8C15787882CA30C9787154D /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		BC6E547B77D9EA8FF3CE7491 /* MeshtasticDataModelV 51.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 51.xcdatamodel"; sourceTree = "<group>"; };
+		BCE680BCED65AEE24B888072 /* Codec2 */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Codec2; path = Packages/Codec2; sourceTree = SOURCE_ROOT; };
 		BD1780B27CE8A3FF56E1C632 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = "zh-Hant"; path = "zh-Hant.lproj/AppIntentVocabulary.plist"; sourceTree = "<group>"; };
 		BDE4E12D1CA4D31DF54808B6 /* MeshtasticDataModelV 28.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 28.xcdatamodel"; sourceTree = "<group>"; };
 		BF2A0F6C2F79E131B73DE4D4 /* MeshtasticDataModelV 41.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "MeshtasticDataModelV 41.xcdatamodel"; sourceTree = "<group>"; };
@@ -571,16 +573,17 @@
 				B97B830773C8597258C1A96F /* MeshtasticProtobufs in Frameworks */,
 				C5B1D5B4B38940E115D61856 /* ShowcaseContent in Frameworks */,
 				F494AA4C9783F0E204B12D62 /* Kp1812 in Frameworks */,
-				9B61C796B61232F1226AAA28 /* CinemaContent in Frameworks */,
-				54D8BBD62304C5917AEE0C2B /* DatadogCore in Frameworks */,
-				3F091ECD7900D90169754B93 /* DatadogCrashReporting in Frameworks */,
-				1A042BDE2702C7388CE867EF /* DatadogLogs in Frameworks */,
-				EFEED2F4EF7D9B1BB657458A /* DatadogRUM in Frameworks */,
-				F8E5A8CEE6E96D5D53F6F851 /* DatadogTrace in Frameworks */,
-				F05DFDBFD6588DFEB6AD621F /* NordicDFU in Frameworks */,
-				FFBFB6ED7A28837B22E688F1 /* SwiftDraw in Frameworks */,
-				128FDEAAE0542475BC4A3EDD /* Markdown in Frameworks */,
-				62715BFE38AD10319684E8E4 /* MVTTools in Frameworks */,
+				9B61C796B61232F1226AAA28 /* Codec2 in Frameworks */,
+				54D8BBD62304C5917AEE0C2B /* CinemaContent in Frameworks */,
+				3F091ECD7900D90169754B93 /* DatadogCore in Frameworks */,
+				1A042BDE2702C7388CE867EF /* DatadogCrashReporting in Frameworks */,
+				EFEED2F4EF7D9B1BB657458A /* DatadogLogs in Frameworks */,
+				F8E5A8CEE6E96D5D53F6F851 /* DatadogRUM in Frameworks */,
+				F05DFDBFD6588DFEB6AD621F /* DatadogTrace in Frameworks */,
+				FFBFB6ED7A28837B22E688F1 /* NordicDFU in Frameworks */,
+				128FDEAAE0542475BC4A3EDD /* SwiftDraw in Frameworks */,
+				62715BFE38AD10319684E8E4 /* Markdown in Frameworks */,
+				08614FAD15A39AB21B99B4EE /* MVTTools in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -711,6 +714,7 @@
 			isa = PBXGroup;
 			children = (
 				69EA7E45E23F4D64AF480AEB /* CinemaContent */,
+				BCE680BCED65AEE24B888072 /* Codec2 */,
 				F6179C183A82544B392F3C60 /* Kp1812 */,
 				BF325A6359A74DDECD015FA1 /* MeshtasticProtobufs */,
 				B5CE7E1EEA0E7E9ED7E764F6 /* ShowcaseContent */,
@@ -1028,6 +1032,7 @@
 				838679D32875D367B9FC8FBF /* MeshtasticProtobufs */,
 				854C16DCEE2F871D2485DEE3 /* ShowcaseContent */,
 				55C660587FB0A7D904F89E6D /* Kp1812 */,
+				556166322BF33C9E9507905D /* Codec2 */,
 				BE8554B70C67001BB668CC50 /* CinemaContent */,
 				680CA066D5A5ECD529461B91 /* DatadogCore */,
 				43547F7F6DDB3842969DA369 /* DatadogCrashReporting */,
@@ -1119,6 +1124,7 @@
 				4EFE4EEC5E27B5E40276A67C /* XCRemoteSwiftPackageReference "swift-markdown" */,
 				981964D4D54F32AEF37E646A /* XCRemoteSwiftPackageReference "swift-protobuf" */,
 				79932FC72F134122A3E2CD75 /* XCLocalSwiftPackageReference "Packages/CinemaContent" */,
+				02860A21E3D4CEE2E0DA82C1 /* XCLocalSwiftPackageReference "Packages/Codec2" */,
 				A902507D583ADBDF7D161069 /* XCLocalSwiftPackageReference "Packages/Kp1812" */,
 				71B6C19C2660F20C79DC8366 /* XCLocalSwiftPackageReference "MeshtasticProtobufs" */,
 				28266D5DB9AF0516D1ADB47C /* XCLocalSwiftPackageReference "Packages/ShowcaseContent" */,
@@ -1844,7 +1850,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(MESHTASTIC_APP_ENTITLEMENTS)";
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Meshtastic/Meshtastic-Catalyst.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Meshtastic/Sambung-Catalyst.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = "Meshtastic/Meshtastic-visionOS.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -1899,7 +1905,7 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(MESHTASTIC_APP_ENTITLEMENTS)";
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Meshtastic/Meshtastic-Catalyst.entitlements";
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "Meshtastic/Sambung-Catalyst.entitlements";
 				"CODE_SIGN_ENTITLEMENTS[sdk=xros*]" = "Meshtastic/Meshtastic-visionOS.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -2023,6 +2029,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		02860A21E3D4CEE2E0DA82C1 /* XCLocalSwiftPackageReference "Packages/Codec2" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/Codec2;
+		};
 		28266D5DB9AF0516D1ADB47C /* XCLocalSwiftPackageReference "Packages/ShowcaseContent" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/ShowcaseContent;
@@ -2132,6 +2142,10 @@
 		52CBDF2188BAF9E2FB8B10A1 /* MeshtasticProtobufs */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MeshtasticProtobufs;
+		};
+		556166322BF33C9E9507905D /* Codec2 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Codec2;
 		};
 		55C660587FB0A7D904F89E6D /* Kp1812 */ = {
 			isa = XCSwiftPackageProductDependency;

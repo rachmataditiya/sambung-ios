@@ -9,11 +9,14 @@ import SwiftUI
 struct SambungQuickReplyBar: View {
 	@ObservedObject private var store = SambungStore.shared
 	@State private var isEditing = false
+	let destination: MessageDestination
 	let onPick: (String) -> Void
 
 	var body: some View {
 		ScrollView(.horizontal, showsIndicators: false) {
 			HStack(spacing: 8) {
+				SambungPhotoButton(destination: destination)
+				SambungVoiceButton(destination: destination)
 				ForEach(store.quickReplies, id: \.self) { reply in
 					Button {
 						onPick(reply)

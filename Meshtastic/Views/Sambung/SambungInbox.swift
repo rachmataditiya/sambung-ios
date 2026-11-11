@@ -59,12 +59,17 @@ struct SambungInbox: View {
 	@Query(sort: [SortDescriptor(\UserEntity.lastMessage, order: .reverse)])
 	private var allUsers: [UserEntity]
 
+	@Environment(\.horizontalSizeClass) private var sizeClass
+	/// The open conversation. A stack on a phone; on a Mac or iPad its last entry is the selection.
 	@State private var path: [SambungRoute] = []
 	@State private var summaries: [Int64: DirectMessageSummary] = [:]
 	@State private var channelItems: [SambungConversationItem] = []
 	@State private var searchText = ""
 	@State private var isPickingContact = false
 	@State private var itemToDelete: SambungConversationItem?
+	#if DEBUG
+	@State private var didDebugOpen = false
+	#endif
 
 	private var connectedNode: NodeInfoEntity? {
 		let num = Int64(UserDefaults.preferredPeripheralNum)
@@ -94,28 +99,8 @@ struct SambungInbox: View {
 	}
 
 	var body: some View {
-		NavigationStack(path: $path) {
-			list
-				.navigationTitle("Chat")
-				.toolbar {
-					ToolbarItem(placement: .topBarTrailing) {
-						Button {
-							isPickingContact = true
-						} label: {
-							Label("Pesan baru", systemImage: "square.and.pencil")
-						}
-					}
-				}
-				.searchable(text: $searchText, prompt: "Cari percakapan")
-				.navigationDestination(for: SambungRoute.self) { route in
-					SambungConversation(route: route)
-				}
-				.navigationDestination(for: Int64.self) { nodeNum in
-					if let node = getNodeInfo(id: nodeNum, context: context) {
-						NodeDetail(node: node, nodeNum: nodeNum)
-							.trackScreen(.nodeDetail)
-					}
-				}
+		Group {
+			if sizeClass == .regular { splitLayout } else { stackLayout }
 		}
 		.sheet(isPresented: $isPickingContact) {
 			SambungContactPicker { user in
@@ -145,39 +130,79 @@ struct SambungInbox: View {
 		.onChange(of: router.messagesState) { _, state in consumeDeepLink(state) }
 	}
 
-	@ViewBuilder
-	private var list: some View {
-		let visible = items
-		List {
-			if !accessoryManager.isConnected {
-				SambungLinkBanner(router: router)
-					.listRowSeparator(.hidden)
-					.listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+	/// iPhone: the inbox pushes the conversation.
+	private var stackLayout: some View {
+		NavigationStack(path: $path) {
+			inbox(asSidebar: false)
+				.navigationDestination(for: SambungRoute.self) { route in
+					SambungConversation(route: route)
+						// A conversation takes the whole screen; the tab bar comes back with the inbox.
+						.toolbar(.hidden, for: .tabBar)
+				}
+				.navigationDestination(for: Int64.self) { nodeDetail($0) }
+		}
+	}
+
+	/// Mac and iPad: the inbox stays on the left, the conversation opens beside it.
+	private var splitLayout: some View {
+		NavigationSplitView {
+			inbox(asSidebar: true)
+				.navigationSplitViewColumnWidth(min: 280, ideal: 340, max: 420)
+		} detail: {
+			NavigationStack {
+				Group {
+					if let route = path.last {
+						SambungConversation(route: route)
+							.id(route)
+					} else {
+						ContentUnavailableView(
+							"Pilih percakapan",
+							systemImage: "bubble.left.and.bubble.right",
+							description: Text("Pesan dari percakapan yang dipilih tampil di sini.")
+						)
+					}
+				}
+				.navigationDestination(for: Int64.self) { nodeDetail($0) }
 			}
-			ForEach(visible) { item in
-				NavigationLink(value: item.route) {
-					SambungInboxRow(item: item, isPinned: store.isPinned(item.key), draft: store.draft(for: item.key))
-				}
-				.swipeActions(edge: .leading, allowsFullSwipe: true) {
+		}
+		.navigationSplitViewStyle(.balanced)
+	}
+
+	private func inbox(asSidebar: Bool) -> some View {
+		list(asSidebar: asSidebar)
+			.navigationTitle("Chat")
+			.toolbar {
+				ToolbarItem(placement: .topBarTrailing) {
 					Button {
-						store.togglePin(item.key)
+						isPickingContact = true
 					} label: {
-						Label(store.isPinned(item.key) ? "Lepas pin" : "Pin", systemImage: store.isPinned(item.key) ? "pin.slash" : "pin")
-					}
-					.tint(SambungTheme.kunyit)
-				}
-				.swipeActions(edge: .trailing) {
-					Button(role: .destructive) {
-						itemToDelete = item
-					} label: {
-						Label("Hapus", systemImage: "trash")
-					}
-					Button {
-						toggleMute(item)
-					} label: {
-						Label(item.isMuted ? "Bunyikan" : "Senyapkan", systemImage: item.isMuted ? "bell" : "bell.slash")
+						Label("Pesan baru", systemImage: "square.and.pencil")
 					}
 				}
+			}
+			.searchable(text: $searchText, prompt: "Cari percakapan")
+	}
+
+	@ViewBuilder
+	private func nodeDetail(_ nodeNum: Int64) -> some View {
+		if let node = getNodeInfo(id: nodeNum, context: context) {
+			NodeDetail(node: node, nodeNum: nodeNum)
+				.trackScreen(.nodeDetail)
+		}
+	}
+
+	private var selectedRoute: Binding<SambungRoute?> {
+		Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] })
+	}
+
+	@ViewBuilder
+	private func list(asSidebar: Bool) -> some View {
+		let visible = items
+		Group {
+			if asSidebar {
+				List(selection: selectedRoute) { rows(visible, asSidebar: true) }
+			} else {
+				List { rows(visible, asSidebar: false) }
 			}
 		}
 		.listStyle(.plain)
@@ -196,6 +221,58 @@ struct SambungInbox: View {
 		}
 	}
 
+	@ViewBuilder
+	private func rows(_ visible: [SambungConversationItem], asSidebar: Bool) -> some View {
+		if !accessoryManager.isConnected {
+			SambungLinkBanner(router: router)
+				.listRowSeparator(.hidden)
+				.listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+		}
+		ForEach(visible) { item in
+			let row = SambungInboxRow(item: item, isPinned: store.isPinned(item.key), draft: store.draft(for: item.key))
+			Group {
+				if asSidebar { row.tag(item.route) } else { NavigationLink(value: item.route) { row } }
+			}
+			.swipeActions(edge: .leading, allowsFullSwipe: true) {
+				pinButton(item).tint(SambungTheme.kunyit)
+			}
+			.swipeActions(edge: .trailing) {
+				deleteButton(item)
+				muteButton(item)
+			}
+			// The same actions for a mouse (right-click) and for a long press.
+			.contextMenu {
+				pinButton(item)
+				muteButton(item)
+				deleteButton(item)
+			}
+		}
+	}
+
+	private func pinButton(_ item: SambungConversationItem) -> some View {
+		Button {
+			store.togglePin(item.key)
+		} label: {
+			Label(store.isPinned(item.key) ? "Lepas pin" : "Pin", systemImage: store.isPinned(item.key) ? "pin.slash" : "pin")
+		}
+	}
+
+	private func muteButton(_ item: SambungConversationItem) -> some View {
+		Button {
+			toggleMute(item)
+		} label: {
+			Label(item.isMuted ? "Bunyikan" : "Senyapkan", systemImage: item.isMuted ? "bell" : "bell.slash")
+		}
+	}
+
+	private func deleteButton(_ item: SambungConversationItem) -> some View {
+		Button(role: .destructive) {
+			itemToDelete = item
+		} label: {
+			Label("Hapus", systemImage: "trash")
+		}
+	}
+
 	// MARK: - Data
 
 	private var refreshID: String {
@@ -205,6 +282,13 @@ struct SambungInbox: View {
 	@MainActor
 	private func refresh() async {
 		channelItems = buildChannelItems()
+		#if DEBUG
+		// Screenshot tooling: SAMBUNG_OPEN=channel opens the first channel on a simulator launch.
+		if ProcessInfo.processInfo.environment["SAMBUNG_OPEN"] == "channel", path.isEmpty, !didDebugOpen, let first = channelItems.first {
+			didDebugOpen = true
+			path = [first.route]
+		}
+		#endif
 		let activeNum = Int64(accessoryManager.activeDeviceNum ?? 0)
 		let userNums = Set(allUsers.filter { $0.num != activeNum && $0.lastMessage != nil }.map(\.num))
 		guard !userNums.isEmpty else {
