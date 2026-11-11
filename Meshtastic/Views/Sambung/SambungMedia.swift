@@ -65,12 +65,12 @@ private struct SambungMediaBubble: View {
 	}
 
 	private var status: String? {
-		if record.failed { return record.isOutgoing ? "Gagal terkirim" : "Tidak lengkap, sebagian paket tidak sampai" }
+		if record.failed { return record.isOutgoing ? sambungText("Gagal terkirim") : sambungText("Tidak lengkap, sebagian paket tidak sampai") }
 		if record.isOutgoing {
-			if record.delivered { return "Sampai ke penerima" }
-			return record.received < record.total ? "Mengirim paket \(record.received) dari \(record.total)" : nil
+			if record.delivered { return sambungText("Sampai ke penerima") }
+			return record.received < record.total ? sambungText("Mengirim paket %lld dari %lld", record.received, record.total) : nil
 		}
-		return record.isComplete ? nil : "Menerima paket \(record.received) dari \(record.total)"
+		return record.isComplete ? nil : sambungText("Menerima paket %lld dari %lld", record.received, record.total)
 	}
 }
 
@@ -183,7 +183,7 @@ private struct SambungPhotoSheet: View {
 	private func send() {
 		guard let encoded else { return }
 		guard accessoryManager.isConnected else {
-			errorText = "Belum tersambung ke radio."
+			errorText = sambungText("Belum tersambung ke radio.")
 			return
 		}
 		let destination = destination, manager = accessoryManager

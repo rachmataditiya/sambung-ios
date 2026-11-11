@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Adds Sambung's Indonesian strings to Localizable.xcstrings.
 
-The translations live in scripts/sambung-id-<n>.json (catalog key -> Indonesian) and
-scripts/sambung-id-labels.json (English config field label -> Indonesian). Run this again after
+Upstream's strings: scripts/sambung-id-<n>.json (catalog key -> Indonesian) and
+scripts/sambung-id-labels.json (English config field label -> Indonesian).
+Sambung's own strings: scripts/sambung-en.json (Indonesian key -> English). Run this again after
 merging upstream: take upstream's catalog, then re-apply.
 """
 import glob
@@ -28,8 +29,11 @@ def dump(value):
 if "--check-format" in sys.argv:
     sys.exit(0 if dump(catalog) == original.rstrip("\n") else 1)
 
+def set_language(entry, language, value):
+    entry.setdefault("localizations", {})[language] = {"stringUnit": {"state": "translated", "value": value}}
+
 def set_indonesian(entry, value):
-    entry.setdefault("localizations", {})["id"] = {"stringUnit": {"state": "translated", "value": value}}
+    set_language(entry, "id", value)
 
 added, missing, by_english = 0, [], {}
 for path in sorted(glob.glob(os.path.join(root, "scripts", "sambung-id-[0-9]*.json"))):
@@ -55,6 +59,17 @@ for key, entry in strings.items():
     if english in by_english:
         set_indonesian(entry, by_english[english])
         added += 1
+
+# Sambung's own screens are written in Indonesian, so their keys are the Indonesian text. Each
+# gets its English, and itself as the Indonesian (a key with no Indonesian would fall back to
+# the English).
+with open(os.path.join(root, "scripts", "sambung-en.json"), encoding="utf-8") as f:
+    own = json.load(f)
+for key, english in own.items():
+    entry = strings.setdefault(key, {})
+    set_language(entry, "en", english)
+    set_indonesian(entry, key)
+print(f"{len(own)} Sambung strings given English")
 
 with open(catalog_path, "w", encoding="utf-8") as f:
     f.write(dump(catalog) + ("\n" if original.endswith("\n") else ""))

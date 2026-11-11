@@ -267,7 +267,7 @@ struct SambungInbox: View {
 					Button {
 						userToSave = user
 					} label: {
-						Label(SambungContacts.isContact(user.num) ? "Ubah kontak" : "Simpan kontak", systemImage: "person.crop.circle.badge.plus")
+						Label(SambungContacts.isContact(user.num) ? sambungText("Ubah kontak") : sambungText("Simpan kontak"), systemImage: "person.crop.circle.badge.plus")
 					}
 				}
 				pinButton(item)
@@ -281,7 +281,7 @@ struct SambungInbox: View {
 		Button {
 			store.togglePin(item.key)
 		} label: {
-			Label(store.isPinned(item.key) ? "Lepas pin" : "Pin", systemImage: store.isPinned(item.key) ? "pin.slash" : "pin")
+			Label(store.isPinned(item.key) ? sambungText("Lepas pin") : sambungText("Pin"), systemImage: store.isPinned(item.key) ? "pin.slash" : "pin")
 		}
 	}
 
@@ -289,7 +289,7 @@ struct SambungInbox: View {
 		Button {
 			toggleMute(item)
 		} label: {
-			Label(item.isMuted ? "Bunyikan" : "Senyapkan", systemImage: item.isMuted ? "bell" : "bell.slash")
+			Label(item.isMuted ? sambungText("Bunyikan") : sambungText("Senyapkan"), systemImage: item.isMuted ? "bell" : "bell.slash")
 		}
 	}
 
@@ -357,7 +357,7 @@ struct SambungInbox: View {
 
 	static func title(for channel: ChannelEntity) -> String {
 		if let name = channel.name, !name.isEmpty { return name }
-		return channel.role == 1 ? "Channel utama" : "Channel \(channel.index)"
+		return channel.role == 1 ? sambungText("Channel utama") : sambungText("Channel %lld", Int(channel.index))
 	}
 
 	// MARK: - Actions
@@ -497,7 +497,7 @@ struct SambungInboxRow: View {
 			return date.formatted(date: .omitted, time: .shortened)
 		}
 		if let yesterday = calendar.date(byAdding: .day, value: -1, to: now), calendar.isDate(date, inSameDayAs: yesterday) {
-			return "Kemarin"
+			return sambungText("Kemarin")
 		}
 		return date.formatted(date: .numeric, time: .omitted)
 	}
@@ -543,7 +543,7 @@ private struct SambungContactPicker: View {
 					Section("Kontak") { rows(contacts) }
 				}
 				if !others.isEmpty {
-					Section(contacts.isEmpty ? "Orang di jaringan" : "Orang lain di jaringan") { rows(others) }
+					Section(contacts.isEmpty ? sambungText("Orang di jaringan") : sambungText("Orang lain di jaringan")) { rows(others) }
 				}
 			}
 			.overlay {

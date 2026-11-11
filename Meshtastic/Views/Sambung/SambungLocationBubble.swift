@@ -38,13 +38,13 @@ struct SambungLocationBubble: View {
 			.frame(width: 220, alignment: .leading)
 		}
 		.buttonStyle(.plain)
-		.accessibilityLabel(isCurrentUser ? "Lokasi yang kamu bagikan" : "Lokasi yang dibagikan")
+		.accessibilityLabel(isCurrentUser ? sambungText("Lokasi yang kamu bagikan") : sambungText("Lokasi yang dibagikan"))
 		.accessibilityHint("Buka di Peta")
 	}
 
 	private func openInMaps() {
 		let item = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
-		item.name = "Lokasi dibagikan"
+		item.name = sambungText("Lokasi dibagikan")
 		item.openInMaps()
 	}
 }

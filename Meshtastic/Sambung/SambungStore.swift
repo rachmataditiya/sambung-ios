@@ -12,7 +12,7 @@ import Combine
 final class SambungStore: ObservableObject {
 	static let shared = SambungStore()
 
-	static let defaultQuickReplies = ["Aman", "Butuh bantuan", "Di jalan", "Sudah sampai", "Oke", "Tunggu sebentar"]
+	static var defaultQuickReplies: [String] { [sambungText("Aman"), sambungText("Butuh bantuan"), sambungText("Di jalan"), sambungText("Sudah sampai"), sambungText("Oke"), sambungText("Tunggu sebentar")] }
 
 	private enum Keys {
 		static let pinned = "sambung.pinned"

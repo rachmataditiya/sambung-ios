@@ -76,7 +76,7 @@ private struct SambungChannelReachBar: View {
 		let reach = SambungReach(lastHeard: heardCount > 0 ? Date() : nil, hopsAway: 0, viaMqtt: false)
 		SambungReachBarLayout(
 			reach: reach,
-			text: heardCount > 0 ? "\(heardCount) node terdengar dalam 2 jam terakhir" : "Belum ada node lain yang terdengar"
+			text: heardCount > 0 ? sambungText("%lld node terdengar dalam 2 jam terakhir", heardCount) : sambungText("Belum ada node lain yang terdengar")
 		)
 		.task(id: accessoryManager.activeDeviceNum) {
 			while !Task.isCancelled {
@@ -152,7 +152,7 @@ struct SambungConversationTitle: View {
 				Button {
 					userToSave = user
 				} label: {
-					Label(SambungContacts.isContact(user.num) ? "Ubah kontak" : "Simpan kontak", systemImage: "person.crop.circle.badge.plus")
+					Label(SambungContacts.isContact(user.num) ? sambungText("Ubah kontak") : sambungText("Simpan kontak"), systemImage: "person.crop.circle.badge.plus")
 				}
 			}
 		} label: {

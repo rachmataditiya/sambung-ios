@@ -133,7 +133,7 @@ struct SambungSearch: View {
 			guard let other = message.fromUser?.num == me ? to : message.fromUser else { return nil }
 			return Hit(id: message.messageId, route: .user(num: other.num), title: other.displayLongName, text: body, timestamp: message.messageTimestamp)
 		}
-		let sender = message.fromUser?.num == me ? "Kamu" : (message.fromUser?.displayLongName ?? "?")
-		return Hit(id: message.messageId, route: .channel(index: message.channel), title: channelTitles[message.channel] ?? "Channel \(message.channel)", text: "\(sender): \(body)", timestamp: message.messageTimestamp)
+		let sender = message.fromUser?.num == me ? sambungText("Kamu") : (message.fromUser?.displayLongName ?? "?")
+		return Hit(id: message.messageId, route: .channel(index: message.channel), title: channelTitles[message.channel] ?? sambungText("Channel %lld", Int(message.channel)), text: "\(sender): \(body)", timestamp: message.messageTimestamp)
 	}
 }

@@ -61,7 +61,7 @@ enum SambungVoiceCodec {
 		return "\(whole / 60):" + String(format: "%02d", whole % 60)
 	}
 
-	static func placeholder(seconds: Double) -> String { "🎤 Pesan suara \(durationText(seconds))" }
+	static func placeholder(seconds: Double) -> String { sambungText("🎤 Pesan suara %@", durationText(seconds)) }
 
 	/// The decoded samples as a WAV file in memory, which is what the audio player takes.
 	static func wav(_ samples: [Int16]) -> Data {

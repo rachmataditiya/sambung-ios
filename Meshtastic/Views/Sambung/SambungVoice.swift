@@ -52,7 +52,7 @@ final class SambungVoiceRecorder: NSObject, ObservableObject {
 			]
 			let recorder = try AVAudioRecorder(url: fileURL, settings: settings)
 			guard recorder.record(forDuration: TimeInterval(SambungVoiceCodec.maxSeconds)) else {
-				state = .failed("Perekaman tidak bisa dimulai.")
+				state = .failed(sambungText("Perekaman tidak bisa dimulai."))
 				return
 			}
 			self.recorder = recorder
@@ -84,7 +84,7 @@ final class SambungVoiceRecorder: NSObject, ObservableObject {
 		do {
 			let samples = try Self.samples(from: fileURL)
 			guard samples.count >= SambungVoiceCodec.sampleRate / 2 else {
-				state = .failed("Rekaman terlalu pendek. Tahan sedikit lebih lama.")
+				state = .failed(sambungText("Rekaman terlalu pendek. Tahan sedikit lebih lama."))
 				return
 			}
 			encoded = SambungVoiceCodec.encode(samples)
@@ -222,19 +222,19 @@ private struct SambungVoiceSheet: View {
 
 	private var hint: String {
 		switch recorder.state {
-		case .idle: return "Paling lama \(SambungVoiceCodec.maxSeconds) detik. Bicara dekat ke mikrofon."
-		case .recording: return "Merekam…"
+		case .idle: return sambungText("Paling lama %lld detik. Bicara dekat ke mikrofon.", SambungVoiceCodec.maxSeconds)
+		case .recording: return sambungText("Merekam…")
 		case .recorded:
 			let seconds = SambungTransfer.estimatedSeconds(forByteCount: recorder.encoded.count)
-			return "Dengarkan dulu: begitulah suaranya di penerima. Terkirim dalam kira-kira \(seconds) detik."
-		case .denied: return "Sambung belum diizinkan memakai mikrofon. Izinkan di Pengaturan iPhone."
+			return sambungText("Dengarkan dulu: begitulah suaranya di penerima. Terkirim dalam kira-kira %lld detik.", seconds)
+		case .denied: return sambungText("Sambung belum diizinkan memakai mikrofon. Izinkan di Pengaturan iPhone.")
 		case let .failed(message): return message
 		}
 	}
 
 	private func send() {
 		guard accessoryManager.isConnected else {
-			errorText = "Belum tersambung ke radio."
+			errorText = sambungText("Belum tersambung ke radio.")
 			return
 		}
 		let clip = recorder.encoded, destination = destination, manager = accessoryManager
@@ -279,7 +279,7 @@ struct SambungVoicePlayer: View {
 			.foregroundStyle(tint)
 		}
 		.buttonStyle(.plain)
-		.accessibilityLabel(isPlaying ? "Hentikan pesan suara" : "Putar pesan suara")
+		.accessibilityLabel(isPlaying ? sambungText("Hentikan pesan suara") : sambungText("Putar pesan suara"))
 	}
 
 	private func toggle() {

@@ -20,7 +20,7 @@ enum SambungImageCodec {
 		var maxPixel: Int { [96, 144, 208][rawValue] }
 		/// Byte budget. The largest equals what the transfer format will carry at all.
 		var maxBytes: Int { [1100, 2400, 4600][rawValue] }
-		var label: String { ["Kecil", "Sedang", "Besar"][rawValue] }
+		var label: String { [sambungText("Kecil"), sambungText("Sedang"), sambungText("Besar")][rawValue] }
 	}
 
 	struct Encoded: Equatable {

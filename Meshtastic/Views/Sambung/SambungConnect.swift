@@ -151,7 +151,7 @@ struct SambungConnect: View {
 				}
 				SambungDeviceFacts(device: device, batteryLevel: batteryLevel(of: device))
 				if accessoryManager.allowDisconnect {
-					Button(accessoryManager.isConnected ? "Putuskan sambungan" : "Batalkan") {
+					Button(accessoryManager.isConnected ? sambungText("Putuskan sambungan") : sambungText("Batalkan")) {
 						if accessoryManager.isConnected {
 							isConfirmingDisconnect = true
 						} else {
@@ -178,7 +178,7 @@ struct SambungConnect: View {
 				}
 				if let error = accessoryManager.lastConnectionError {
 					Label {
-						Text(verbatim: "Sambungan terakhir gagal: \(error.localizedDescription)")
+						Text(verbatim: sambungText("Sambungan terakhir gagal: %@", error.localizedDescription))
 					} icon: {
 						Image(systemName: "exclamationmark.triangle.fill")
 					}
@@ -219,7 +219,7 @@ struct SambungConnect: View {
 	private var searchingRow: some View {
 		HStack(spacing: 12) {
 			ProgressView()
-			Text(activeDevice == nil ? "Mencari radio di sekitar…" : "Tidak ada radio lain di sekitar.")
+			Text(activeDevice == nil ? sambungText("Mencari radio di sekitar…") : sambungText("Tidak ada radio lain di sekitar."))
 				.font(.callout)
 				.foregroundStyle(.secondary)
 		}
@@ -254,12 +254,12 @@ extension AccessoryManager {
 	/// The link's state in a few words, for the connection card and the bar above the tab bar.
 	var sambungStateText: String {
 		switch state {
-		case .subscribed: return "Tersambung"
-		case .connecting: return "Menyambungkan…"
-		case let .retrying(attempt, maxAttempts): return "Mencoba lagi (\(attempt) dari \(maxAttempts))…"
-		case let .retrievingDatabase(nodeCount): return nodeCount > 0 ? "Mengambil daftar node (\(nodeCount))…" : "Mengambil data dari radio…"
-		case .communicating: return "Menyiapkan radio…"
-		case .uninitialized, .idle, .discovering: return isConnected ? "Tersambung" : "Menyambungkan…"
+		case .subscribed: return sambungText("Tersambung")
+		case .connecting: return sambungText("Menyambungkan…")
+		case let .retrying(attempt, maxAttempts): return sambungText("Mencoba lagi (%lld dari %lld)…", attempt, maxAttempts)
+		case let .retrievingDatabase(nodeCount): return nodeCount > 0 ? sambungText("Mengambil daftar node (%lld)…", nodeCount) : sambungText("Mengambil data dari radio…")
+		case .communicating: return sambungText("Menyiapkan radio…")
+		case .uninitialized, .idle, .discovering: return isConnected ? sambungText("Tersambung") : sambungText("Menyambungkan…")
 		}
 	}
 }
@@ -295,7 +295,7 @@ private struct SambungDeviceRow: View {
 
 	private var subtitle: String {
 		var parts = [device.transportType == .ble ? "Bluetooth" : device.transportType == .tcp ? "WiFi" : "USB"]
-		if isLastUsed { parts.append("terakhir dipakai") }
+		if isLastUsed { parts.append(sambungText("terakhir dipakai")) }
 		return parts.joined(separator: ", ")
 	}
 }
@@ -311,7 +311,7 @@ private struct SambungDeviceFacts: View {
 			if let batteryLevel {
 				// Above 100 is how the firmware reports "on external power".
 				fact(symbol: batteryLevel > 100 ? "powerplug" : "battery.75percent",
-					 text: batteryLevel > 100 ? "Daya luar" : "\(batteryLevel)%")
+					 text: batteryLevel > 100 ? sambungText("Daya luar") : "\(batteryLevel)%")
 			}
 			if let version = device.firmwareVersion, !version.isEmpty, version != "?.?.?" {
 				fact(symbol: "cpu", text: version)
@@ -338,7 +338,7 @@ private struct SambungSignalBars: View {
 					.frame(width: 4, height: CGFloat(4 + bar * 4))
 			}
 		}
-		.accessibilityLabel(level == 3 ? "Sinyal kuat" : level == 2 ? "Sinyal sedang" : "Sinyal lemah")
+		.accessibilityLabel(level == 3 ? sambungText("Sinyal kuat") : level == 2 ? sambungText("Sinyal sedang") : sambungText("Sinyal lemah"))
 	}
 }
 

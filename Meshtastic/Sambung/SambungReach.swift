@@ -55,13 +55,13 @@ struct SambungReach: Equatable {
 	func summary(now: Date = Date()) -> String {
 		switch state {
 		case .neverHeard:
-			return "Belum pernah terdengar"
+			return sambungText("Belum pernah terdengar")
 		case .stale:
-			return "Terakhir terdengar \(Self.ago(lastHeard, now: now))"
+			return sambungText("Terakhir terdengar %@", Self.ago(lastHeard, now: now))
 		case .viaInternet:
-			return "Terdengar lewat internet, \(Self.ago(lastHeard, now: now))"
+			return sambungText("Terdengar lewat internet, %@", Self.ago(lastHeard, now: now))
 		case let .reachable(hops):
-			let path = hops == 0 ? "Terdengar langsung" : "Lewat \(hops) perantara"
+			let path = hops == 0 ? sambungText("Terdengar langsung") : sambungText("Lewat %lld perantara", hops)
 			return "\(path), \(Self.ago(lastHeard, now: now))"
 		}
 	}
@@ -70,10 +70,10 @@ struct SambungReach: Equatable {
 		guard let date else { return "" }
 		let seconds = max(0, now.timeIntervalSince(date))
 		switch seconds {
-		case ..<60: return "baru saja"
-		case ..<3600: return "\(Int(seconds / 60)) menit lalu"
-		case ..<86_400: return "\(Int(seconds / 3600)) jam lalu"
-		default: return "\(Int(seconds / 86_400)) hari lalu"
+		case ..<60: return sambungText("baru saja")
+		case ..<3600: return sambungText("%lld menit lalu", Int(seconds / 60))
+		case ..<86_400: return sambungText("%lld jam lalu", Int(seconds / 3600))
+		default: return sambungText("%lld hari lalu", Int(seconds / 86_400))
 		}
 	}
 }

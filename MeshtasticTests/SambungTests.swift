@@ -4,6 +4,7 @@ import Foundation
 import Testing
 @testable import Meshtastic
 
+// Like upstream's tests, these compare English text: run with -testLanguage en -testRegion US.
 @Suite("Sambung store")
 @MainActor
 struct SambungStoreTests {
@@ -56,7 +57,7 @@ struct SambungReachTests {
 		let reach = SambungReach(lastHeard: now.addingTimeInterval(-300), hopsAway: 0, viaMqtt: false, now: now)
 		#expect(reach.state == .reachable(hops: 0))
 		#expect(reach.relayCount == 0)
-		#expect(reach.summary(now: now) == "Terdengar langsung, 5 menit lalu")
+		#expect(reach.summary(now: now) == "Heard directly, 5 min ago")
 	}
 
 	@Test("Relays are counted, and capped for drawing")
@@ -64,7 +65,7 @@ struct SambungReachTests {
 		let reach = SambungReach(lastHeard: now.addingTimeInterval(-30), hopsAway: 6, viaMqtt: false, now: now)
 		#expect(reach.state == .reachable(hops: 6))
 		#expect(reach.relayCount == 4)
-		#expect(reach.summary(now: now) == "Lewat 6 perantara, baru saja")
+		#expect(reach.summary(now: now) == "Relay hops: 6, just now")
 	}
 
 	@Test("Past the online window it is stale, whatever the hop count")
@@ -72,7 +73,7 @@ struct SambungReachTests {
 		let reach = SambungReach(lastHeard: now.addingTimeInterval(-3 * 3600), hopsAway: 1, viaMqtt: false, now: now)
 		#expect(reach.state == .stale)
 		#expect(!reach.isReachable)
-		#expect(reach.summary(now: now) == "Terakhir terdengar 3 jam lalu")
+		#expect(reach.summary(now: now) == "Last heard 3 h ago")
 	}
 
 	@Test("MQTT-only nodes are reachable, but not by radio")
@@ -86,7 +87,7 @@ struct SambungReachTests {
 	func neverHeard(lastHeard: Date?) {
 		let reach = SambungReach(lastHeard: lastHeard, hopsAway: 0, viaMqtt: false, now: now)
 		#expect(reach.state == .neverHeard)
-		#expect(reach.summary(now: now) == "Belum pernah terdengar")
+		#expect(reach.summary(now: now) == "Never heard")
 	}
 }
 
@@ -111,15 +112,15 @@ struct SambungLocationMessageTests {
 		#expect(SambungLocationMessage.coordinate(in: text) == nil)
 	}
 
-	@Test("Distance and direction read in plain Indonesian")
+	@Test("Distance and direction read in plain words")
 	func distance() {
 		let monas = CLLocationCoordinate2D(latitude: -6.1754, longitude: 106.8272)
 		// About 1.1 km due north of Monas.
 		let north = CLLocationCoordinate2D(latitude: -6.1654, longitude: 106.8272)
-		#expect(SambungLocationMessage.distanceText(from: monas, to: north) == "1,1 km ke arah utara")
-		#expect(SambungLocationMessage.distanceText(from: monas, to: monas) == "Di tempat yang sama denganmu")
-		#expect(SambungLocationMessage.compassName(225) == "barat daya")
-		#expect(SambungLocationMessage.compassName(359) == "utara")
+		#expect(SambungLocationMessage.distanceText(from: monas, to: north) == "1.1 km to the north")
+		#expect(SambungLocationMessage.distanceText(from: monas, to: monas) == "Right where you are")
+		#expect(SambungLocationMessage.compassName(225) == "southwest")
+		#expect(SambungLocationMessage.compassName(359) == "north")
 	}
 }
 
@@ -292,7 +293,7 @@ struct SambungVoiceCodecTests {
 	@Test("Duration text and the WAV header")
 	func formatting() {
 		#expect(SambungVoiceCodec.durationText(7.2) == "0:07")
-		#expect(SambungVoiceCodec.placeholder(seconds: 10) == "🎤 Pesan suara 0:10")
+		#expect(SambungVoiceCodec.placeholder(seconds: 10) == "🎤 Voice message 0:10")
 		let wav = SambungVoiceCodec.wav([0, 1, -1])
 		#expect(wav.count == 44 + 6)
 		#expect(String(decoding: wav.prefix(4), as: UTF8.self) == "RIFF")

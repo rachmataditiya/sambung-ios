@@ -34,7 +34,7 @@ struct SambungNodeRow: View {
 					if let battery = node.latestDeviceMetrics?.batteryLevel {
 						// Above 100 is how the firmware reports "on external power".
 						Label {
-							Text(verbatim: battery > 100 ? "Daya luar" : "\(battery)%")
+							Text(verbatim: battery > 100 ? sambungText("Daya luar") : "\(battery)%")
 						} icon: {
 							Image(systemName: battery > 100 ? "powerplug" : battery > 50 ? "battery.75percent" : "battery.25percent")
 						}
@@ -114,7 +114,7 @@ struct SambungNodeHeader: View {
 						Button {
 							userToSave = user
 						} label: {
-							Label(isContact ? "Ubah kontak" : "Simpan kontak", systemImage: "person.crop.circle.badge.plus").frame(maxWidth: .infinity)
+							Label(isContact ? sambungText("Ubah kontak") : sambungText("Simpan kontak"), systemImage: "person.crop.circle.badge.plus").frame(maxWidth: .infinity)
 						}
 						.buttonStyle(.bordered)
 					}

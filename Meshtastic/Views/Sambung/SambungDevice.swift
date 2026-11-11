@@ -11,7 +11,7 @@ struct SambungDeviceSection: View {
 	@EnvironmentObject private var accessoryManager: AccessoryManager
 	@ObservedObject var router: Router
 	@AppStorage(SambungOutbox.enabledKey) private var autoResend = true
-	@AppStorage(SambungConfig.followPhoneLanguageKey) private var followsPhoneLanguage = false
+	@AppStorage(SambungConfig.languageKey) private var language = "id"
 	@State private var isShowingContacts = false
 	@State private var isEditingQuickReplies = false
 
@@ -25,7 +25,7 @@ struct SambungDeviceSection: View {
 			.accessibilityHint("Membuka sambungan radio")
 		}
 
-		Section("Sambung") {
+		Section {
 			Button {
 				isShowingContacts = true
 			} label: {
@@ -46,18 +46,20 @@ struct SambungDeviceSection: View {
 				Label("Kirim ulang otomatis", systemImage: "arrow.clockwise")
 					.labelStyle(SambungSettingsLabelStyle())
 			}
-			Toggle(isOn: $followsPhoneLanguage) {
-				Label {
-					VStack(alignment: .leading, spacing: 2) {
-						Text("Ikuti bahasa iPhone")
-						Text("Kalau mati, Sambung berbahasa Indonesia. Berlaku setelah Sambung dibuka ulang.")
-							.font(.footnote)
-							.foregroundStyle(.secondary)
-					}
-				} icon: {
-					Image(systemName: "globe")
+			Picker(selection: $language) {
+				ForEach(SambungConfig.languages, id: \.0) { code, name in
+					Text(verbatim: name).tag(code)
 				}
-				.labelStyle(SambungSettingsLabelStyle())
+			} label: {
+				Label("Bahasa", systemImage: "globe")
+					.labelStyle(SambungSettingsLabelStyle())
+			}
+			.onChange(of: language) { SambungConfig.applyLanguage() }
+		} header: {
+			Text(verbatim: "Sambung")
+		} footer: {
+			if language != (Bundle.main.preferredLocalizations.first ?? "id") {
+				Text("Berlaku setelah Sambung dibuka ulang.")
 			}
 		}
 	}

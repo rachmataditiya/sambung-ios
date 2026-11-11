@@ -21,16 +21,16 @@ final class SambungTransfer {
 	static let quietBeforeRequest: TimeInterval = 20
 	static let maxRequestRounds = 3
 
-	static let imagePlaceholder = "🖼️ Foto"
+	static var imagePlaceholder: String { sambungText("🖼️ Foto") }
 
 	enum TransferError: LocalizedError {
 		case notAllowedHere, notConnected, messageNotFound
 
 		var errorDescription: String? {
 			switch self {
-			case .notAllowedHere: return "Foto dan suara hanya bisa dikirim lewat pesan langsung atau channel privat."
-			case .notConnected: return "Belum tersambung ke radio."
-			case .messageNotFound: return "Pesan pengantar tidak tersimpan, kiriman dibatalkan."
+			case .notAllowedHere: return sambungText("Foto dan suara hanya bisa dikirim lewat pesan langsung atau channel privat.")
+			case .notConnected: return sambungText("Belum tersambung ke radio.")
+			case .messageNotFound: return sambungText("Pesan pengantar tidak tersimpan, kiriman dibatalkan.")
 			}
 		}
 	}

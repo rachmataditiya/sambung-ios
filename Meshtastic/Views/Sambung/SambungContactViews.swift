@@ -37,7 +37,7 @@ private struct SambungContactAlert: ViewModifier {
 				}
 				Button("Batal", role: .cancel) {}
 			} message: { user in
-				Text(verbatim: "Radio: \(user.longName ?? user.shortName ?? "?"). Nama ini hanya tersimpan di HP ini.")
+				Text(verbatim: sambungText("Radio: %@. Nama ini hanya tersimpan di HP ini.", user.longName ?? user.shortName ?? "?"))
 			}
 			.onChange(of: user?.num) { _, num in
 				name = num.flatMap { NodeDisplayNameStore.displayName(for: $0) } ?? ""

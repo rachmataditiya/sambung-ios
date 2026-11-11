@@ -26,11 +26,11 @@ enum SambungLocationMessage {
 	static func distanceText(from origin: CLLocationCoordinate2D, to target: CLLocationCoordinate2D) -> String {
 		let meters = CLLocation(latitude: origin.latitude, longitude: origin.longitude)
 			.distance(from: CLLocation(latitude: target.latitude, longitude: target.longitude))
-		if meters < 15 { return "Di tempat yang sama denganmu" }
+		if meters < 15 { return sambungText("Di tempat yang sama denganmu") }
 		let distance = meters < 1000
 			? "\(Int((meters / 10).rounded()) * 10) m"
-			: String(format: "%.1f km", locale: Locale(identifier: "id_ID"), meters / 1000)
-		return "\(distance) ke arah \(compassName(bearing(from: origin, to: target)))"
+			: String(format: "%.1f km", locale: .current, meters / 1000)
+		return sambungText("%@ ke arah %@", distance, compassName(bearing(from: origin, to: target)))
 	}
 
 	static func bearing(from origin: CLLocationCoordinate2D, to target: CLLocationCoordinate2D) -> Double {
@@ -42,7 +42,7 @@ enum SambungLocationMessage {
 	}
 
 	static func compassName(_ bearing: Double) -> String {
-		let names = ["utara", "timur laut", "timur", "tenggara", "selatan", "barat daya", "barat", "barat laut"]
+		let names = [sambungText("utara"), sambungText("timur laut"), sambungText("timur"), sambungText("tenggara"), sambungText("selatan"), sambungText("barat daya"), sambungText("barat"), sambungText("barat laut")]
 		return names[Int((bearing + 22.5) / 45) % 8]
 	}
 }
