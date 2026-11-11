@@ -137,6 +137,8 @@ struct NodeDetail: View {
 	/// else here would pick up the change.
 	@State private var displayNameRefresh = 0
 
+	@AppStorage("sambung.showsNodeTechnicalData") private var showsTechnicalData = false
+
 	var body: some View {
 		if node.modelContext != nil, !node.isDeleted {
 			ScrollViewReader { scrollView in
@@ -193,15 +195,24 @@ struct NodeDetail: View {
 			// Sambung: the person and the main actions come first; the hardware card moved down.
 			SambungNodeHeader(node: node)
 			nodeSection
-			environmentSection
-			airQualitySection
-			powerSection
-			hostSection
-			logsSection
 			actionsSection
-			NodeInfoItem(nodeNum: nodeNum, liveScreen: liveScreen)
-				.id(nodeNum)
-			administrationSection
+			// Sambung: sensor readings, logs, hardware and remote administration are for the
+			// curious, so they wait behind one switch.
+			Section {
+				Toggle(isOn: $showsTechnicalData.animation()) {
+					Label("Data teknis", systemImage: "waveform.path.ecg")
+				}
+			}
+			if showsTechnicalData {
+				environmentSection
+				airQualitySection
+				powerSection
+				hostSection
+				logsSection
+				NodeInfoItem(nodeNum: nodeNum, liveScreen: liveScreen)
+					.id(nodeNum)
+				administrationSection
+			}
 		}
 		.listStyle(.insetGrouped)
 		// The 3D model opens full screen from here rather than from its row: a sheet on a list row is

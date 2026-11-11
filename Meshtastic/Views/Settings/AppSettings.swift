@@ -85,52 +85,7 @@ struct AppSettings: View {
 					}
 #endif
 				}
-				Section(header: Text("Node Layout")) {
-					List {
-						Picker("Node List Density", selection: $nodeListDensity.animation()) {
-							ForEach(NodeListDensity.allCases) { item in
-								Text(item.description).tag(item)
-							}
-						}
-						.pickerStyle(.segmented)
-						if nodeListDensity == .compact {
-							Toggle(isOn: $shouldShowPower) {
-								Text("Power")
-							}
-							Toggle(isOn: $shouldShowLastHeard.animation()) {
-								Text("Last Heard Time")
-							}
-							Toggle(isOn: $lastHeardIsRelative) {
-								Text("Relative Last Heard Time")
-							}
-							.disabled(!shouldShowLastHeard)
-							Toggle(isOn: $shouldShowLocation) {
-								Text("Distance and Bearing")
-							}
-							Toggle(isOn: $shouldShowHops) {
-								Text("Hops Away")
-							}
-							Toggle(isOn: $shouldShowSignal) {
-								Text("Signal (Direct Only)")
-							}
-							Toggle(isOn: $shouldShowChannel) {
-								Text("Channel")
-							}
-							Toggle(isOn: $shouldShowRole) {
-								Text("Device Role")
-							}
-							Toggle(isOn: $shouldShowTelemetry) {
-								Text("Log Icons")
-							}
-						}
-						if nodeListDensity == .standard {
-							Text("The Complete layout displays all available node data. Fields with no data are automatically hidden.")
-								.font(.footnote)
-								.foregroundStyle(.secondary)
-						}
-						BuildTestNode(nodeListDensity: $nodeListDensity)
-					}
-				}
+				// Sambung: the node list has one row layout, so upstream's "Node Layout" options are not offered.
 				Section(header: Text("Environment")) {
 					VStack(alignment: .leading) {
 						Toggle(isOn: $environmentEnableWeatherKit) {

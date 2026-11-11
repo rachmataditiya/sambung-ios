@@ -195,5 +195,6 @@
 "Isi pesan": "Message",
 "Ulangi tiap %lld menit": "Repeat every %lld minutes",
 "Pesan diulang dengan posisi terbaru dan berhenti sendiri setelah satu jam.": "The message repeats with your latest position and stops by itself after an hour.",
-"SOS": "SOS"
+"SOS": "SOS",
+"Data teknis": "Technical data"
 }
