@@ -124,37 +124,37 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
-	<string>We use NFC tags to share and import node contacts and channel settings</string>
+	<string>Tag NFC dipakai untuk membagikan dan mengimpor kontak node serta setelan channel.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>We use bluetooth to connect to nearby Meshtastic Devices</string>
+	<string>Sambung memakai Bluetooth untuk menyambung ke radio di sekitar.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Bluetooth is used to connect an iPhone to a user's meshtastic device to allow text messaging and location data for the mesh network.</string>
+	<string>Bluetooth dipakai untuk menyambungkan perangkat ini ke radio, supaya pesan dan lokasi bisa dikirim lewat jaringan mesh.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_meshtastic._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>The camera scans QR codes to share channels, and shows your radio's 3D model in the room around you.</string>
+	<string>Kamera dipakai untuk memindai kode QR channel dan menampilkan model 3D radio di ruangan sekitarmu.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Mikrofon dipakai untuk merekam pesan suara yang kamu kirim lewat radio.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>We use local networking to connect to network-based nodes.</string>
+	<string>Jaringan lokal dipakai untuk menyambung ke radio lewat WiFi.</string>
 	<key>NSSiriUsageDescription</key>
 	<string>Siri and Shortcuts let you control Meshtastic hands-free — send messages, disconnect, restart, or shut down your node with your voice.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>We use your location to display it on the mesh map, show and filter by distance as well as to have GPS coordinates to send to the connected device. Route Recording uses location in the background.</string>
+	<string>Lokasimu dipakai untuk menampilkannya di peta, menghitung jarak, dan mengirim koordinat GPS ke radio yang tersambung. Perekam rute memakai lokasi di latar belakang.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We use your location to display it on the mesh map as well as to have GPS coordinates to send to the connected device.</string>
+	<string>Lokasimu dipakai untuk menampilkannya di peta dan mengirim koordinat GPS ke radio yang tersambung.</string>
 	<key>NSLocationUsageDescription</key>
-	<string>We use your location to display it on the mesh map as well as to have GPS coordinates to send to the connected device.</string>
+	<string>Lokasimu dipakai untuk menampilkannya di peta dan mengirim koordinat GPS ke radio yang tersambung.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We use your location to display it on the mesh map, show and filter by distance as well as to have GPS coordinates to send to the connected device. Route Recording uses location in the background.</string>
+	<string>Lokasimu dipakai untuk menampilkannya di peta, menghitung jarak, dan mengirim koordinat GPS ke radio yang tersambung. Perekam rute memakai lokasi di latar belakang.</string>
 	<key>NSSiriUsageDescription</key>
 	<string>Siri is used for messaging to send and receive Meshtastic messages by voice and through CarPlay.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>Privacy – Bluetooth Always Usage Description</key>
-	<string>We use bluetooth to connect to nearby Meshtastic Devices</string>
+	<string>Sambung memakai Bluetooth untuk menyambung ke radio di sekitar.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

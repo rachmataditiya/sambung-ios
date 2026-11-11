@@ -2,7 +2,8 @@
 """Adds Sambung's Indonesian strings to Localizable.xcstrings.
 
 Upstream's strings: scripts/sambung-id-<n>.json (catalog key -> Indonesian) and
-scripts/sambung-id-labels.json (English config field label -> Indonesian).
+scripts/sambung-id-labels.json and sambung-id-descriptions.json (English config field label or
+explanation -> Indonesian).
 Sambung's own strings: scripts/sambung-en.json (Indonesian key -> English). Run this again after
 merging upstream: take upstream's catalog, then re-apply.
 """
@@ -52,8 +53,13 @@ for path in sorted(glob.glob(os.path.join(root, "scripts", "sambung-id-[0-9]*.js
 # text as the "en" value, so they are matched by that text.
 with open(os.path.join(root, "scripts", "sambung-id-labels.json"), encoding="utf-8") as f:
     by_english.update(json.load(f))
+# The explanations under each field are keyed the same way ("….description").
+descriptions_path = os.path.join(root, "scripts", "sambung-id-descriptions.json")
+if os.path.exists(descriptions_path):
+    with open(descriptions_path, encoding="utf-8") as f:
+        by_english.update(json.load(f))
 for key, entry in strings.items():
-    if not key.endswith(".label"):
+    if not key.endswith((".label", ".description")):
         continue
     english = entry.get("localizations", {}).get("en", {}).get("stringUnit", {}).get("value")
     if english in by_english:

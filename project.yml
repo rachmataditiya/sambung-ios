@@ -377,7 +377,8 @@ targets:
             - "-weak_framework"
             - "SwiftUI"
           PRODUCT_BUNDLE_IDENTIFIER: "$(MESHTASTIC_BUNDLE_ID_PREFIX)"
-          PRODUCT_NAME: "$(TARGET_NAME)"
+          PRODUCT_MODULE_NAME: "Meshtastic"
+          PRODUCT_NAME: "Sambung"
           SUPPORTS_MACCATALYST: "YES"
           SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: "NO"
           SWIFT_EMIT_LOC_STRINGS: "YES"
@@ -427,7 +428,8 @@ targets:
             - "-weak_framework"
             - "SwiftUI"
           PRODUCT_BUNDLE_IDENTIFIER: "$(MESHTASTIC_BUNDLE_ID_PREFIX)"
-          PRODUCT_NAME: "$(TARGET_NAME)"
+          PRODUCT_MODULE_NAME: "Meshtastic"
+          PRODUCT_NAME: "Sambung"
           SUPPORTS_MACCATALYST: "YES"
           SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: "NO"
           SWIFT_EMIT_LOC_STRINGS: "YES"
@@ -624,7 +626,7 @@ targets:
           SWIFT_EMIT_LOC_STRINGS: "NO"
           SWIFT_VERSION: "5.0"
           TARGETED_DEVICE_FAMILY: "1,2"
-          TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Meshtastic.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Meshtastic"
+          TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Sambung.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sambung"
         Release:
           ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: "YES"
           BUNDLE_LOADER: "$(TEST_HOST)"
@@ -643,7 +645,7 @@ targets:
           SWIFT_EMIT_LOC_STRINGS: "NO"
           SWIFT_VERSION: "5.0"
           TARGETED_DEVICE_FAMILY: "1,2"
-          TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Meshtastic.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Meshtastic"
+          TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Sambung.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Sambung"
 
   "Meshtastic Watch App":
     type: application
