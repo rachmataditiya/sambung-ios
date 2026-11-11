@@ -50,7 +50,7 @@ struct SambungQuickReplyBar: View {
 	}
 }
 
-private struct SambungQuickReplyEditor: View {
+struct SambungQuickReplyEditor: View {
 	@ObservedObject private var store = SambungStore.shared
 	@Environment(\.dismiss) private var dismiss
 	@State private var newReply = ""

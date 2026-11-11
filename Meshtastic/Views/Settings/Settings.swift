@@ -647,6 +647,68 @@ struct Settings: View {
 		}
 	}
 
+	/// Sambung: upstream's top-of-list rows, regrouped under two headings.
+	var toolsSection: some View {
+		Section("Alat") {
+			NavigationLink(value: SettingsNavigationState.firmwareUpdates) {
+				Label {
+					Text("Firmware Updates")
+				} icon: {
+					Image(systemName: "arrow.up.arrow.down.square")
+				}
+			}
+			.disabled(selectedNode > 0 && selectedNode != preferredNodeNum)
+			NavigationLink(value: SettingsNavigationState.localMeshDiscovery) {
+				Label {
+					Text("Local Mesh Discovery")
+				} icon: {
+					Image(systemName: "antenna.radiowaves.left.and.right")
+				}
+			}
+			NavigationLink(value: SettingsNavigationState.routes) {
+				Label {
+					Text("Routes")
+				} icon: {
+					Image(systemName: "road.lanes.curved.right")
+				}
+			}
+			NavigationLink(value: SettingsNavigationState.routeRecorder) {
+				Label {
+					Text("Route Recorder")
+				} icon: {
+					Image(systemName: "record.circle")
+						.foregroundColor(.red)
+				}
+			}
+		}
+	}
+
+	var appSection: some View {
+		Section("Aplikasi") {
+			NavigationLink(value: SettingsNavigationState.appSettings) {
+				Label {
+					Text("App Settings")
+				} icon: {
+					Image(systemName: "gearshape")
+				}
+			}
+			NavigationLink(value: SettingsNavigationState.helpDocs) {
+				Label {
+					Text("Help & Documentation")
+				} icon: {
+					Image(systemName: "book.pages")
+				}
+			}
+			NavigationLink(value: SettingsNavigationState.about) {
+				Label {
+					Text("Tentang Sambung")
+				} icon: {
+					Image(systemName: "questionmark.app")
+				}
+			}
+		}
+	}
+
 	private var isSearching: Bool {
 		searchText.trimmingCharacters(in: .whitespacesAndNewlines).count
 			>= SettingsSearchEngine.minimumQueryLength
@@ -704,60 +766,9 @@ struct Settings: View {
 						}
 					)
 				} else {
-				NavigationLink(value: SettingsNavigationState.about) {
-					Label {
-						Text("About Meshtastic")
-					} icon: {
-						Image(systemName: "questionmark.app")
-					}
-				}
-
-				NavigationLink(value: SettingsNavigationState.helpDocs) {
-					Label {
-						Text("Help & Documentation")
-					} icon: {
-						Image(systemName: "book.pages")
-					}
-				}
-
-				NavigationLink(value: SettingsNavigationState.appSettings) {
-					Label {
-						Text("App Settings")
-					} icon: {
-						Image(systemName: "gearshape")
-					}
-				}
-				NavigationLink(value: SettingsNavigationState.localMeshDiscovery) {
-					Label {
-						Text("Local Mesh Discovery")
-					} icon: {
-						Image(systemName: "antenna.radiowaves.left.and.right")
-					}
-				}
-				NavigationLink(value: SettingsNavigationState.routes) {
-					Label {
-						Text("Routes")
-					} icon: {
-						Image(systemName: "road.lanes.curved.right")
-					}
-				}
-
-				NavigationLink(value: SettingsNavigationState.routeRecorder) {
-					Label {
-						Text("Route Recorder")
-					} icon: {
-						Image(systemName: "record.circle")
-							.foregroundColor(.red)
-					}
-				}
-				NavigationLink(value: SettingsNavigationState.firmwareUpdates) {
-					Label {
-						Text("Firmware Updates")
-					} icon: {
-						Image(systemName: "arrow.up.arrow.down.square")
-					}
-				}
-				.disabled(selectedNode > 0 && selectedNode != preferredNodeNum)
+				// Sambung: the connection card and Sambung's own rows come first; upstream's app and
+				// tool rows moved below the radio sections (toolsSection, appSection).
+				SambungDeviceSection(router: router)
 
 				// A managed radio hides the configuration sections; say why instead of
 				// showing nothing (same message as Android).
@@ -831,6 +842,8 @@ struct Settings: View {
 						developersSection
 					}
 				}
+				toolsSection
+				appSection
 				}
 			}
 			.searchable(
@@ -1002,13 +1015,9 @@ struct Settings: View {
 					refreshNodes()
 				}
 			}
-			.navigationTitle("Settings")
-			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
-					MeshtasticLogo().onLongPressGesture(minimumDuration: 1.0) {
-					}
-				}
-			}
+			.navigationTitle("Perangkat")
+			.labelStyle(SambungSettingsLabelStyle())
+			.sambungConnectDestination(router: router)
 		}
 	}
 

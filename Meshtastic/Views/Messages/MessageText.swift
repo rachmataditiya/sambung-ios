@@ -9,6 +9,7 @@ struct MessageText: View {
 	@Environment(\.modelContext) private var context
 	@EnvironmentObject var accessoryManager: AccessoryManager
 	@EnvironmentObject private var router: Router
+	@Environment(\.sambungOpenNode) private var openNode
 
 	let message: MessageEntity
 	let tapBackDestination: MessageDestination
@@ -238,7 +239,8 @@ struct MessageText: View {
 		   components.path == "/nodes",
 		   let nodeNumStr = components.queryItems?.first(where: { $0.name == "nodenum" })?.value,
 		   let nodeNum = Int64(nodeNumStr) {
-			router.navigateToNodeDetail(nodeNum: nodeNum)
+			// Sambung: inside a conversation the node opens on the same stack.
+			if let openNode { openNode(nodeNum) } else { router.navigateToNodeDetail(nodeNum: nodeNum) }
 			return .handled
 		}
 		var addChannels = false

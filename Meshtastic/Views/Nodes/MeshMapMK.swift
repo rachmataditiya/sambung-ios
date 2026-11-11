@@ -842,10 +842,9 @@ struct MeshMapMK: View {
 			ZStack {
 			mapWithSheets
 			}
+			.navigationTitle("Peta")
+			.navigationBarTitleDisplayMode(.inline)
 			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
-					MeshtasticLogo()
-				}
 				ToolbarItem(placement: .topBarTrailing) {
 					HStack {
 						if supportsMultipleWindows && showOpenWindowButton && !isMapWindowOpen {

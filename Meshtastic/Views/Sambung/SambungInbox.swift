@@ -14,6 +14,38 @@ enum SambungRoute: Hashable {
 	case user(num: Int64)
 }
 
+/// Which conversation is open. Owned by the shell so the Chat tab and the search tab can drive it.
+@MainActor @Observable
+final class SambungChatNavigation {
+	/// iPhone: the stack above the inbox. A `NavigationPath` because the message rows push a
+	/// node's detail with a plain node number, which a typed path would refuse.
+	var path = NavigationPath()
+	/// Mac and iPad: the conversation shown beside the inbox.
+	var selected: SambungRoute?
+
+	func open(_ route: SambungRoute) {
+		path = NavigationPath([route])
+		selected = route
+	}
+
+	func popToRoot() {
+		path = NavigationPath()
+		selected = nil
+	}
+}
+
+/// Opens a node's detail on the stack the conversation is on. Nil outside the Chat stack.
+private struct SambungOpenNodeKey: EnvironmentKey {
+	static let defaultValue: ((Int64) -> Void)? = nil
+}
+
+extension EnvironmentValues {
+	var sambungOpenNode: ((Int64) -> Void)? {
+		get { self[SambungOpenNodeKey.self] }
+		set { self[SambungOpenNodeKey.self] = newValue }
+	}
+}
+
 /// A row in the inbox. Built from the upstream entities on every refresh.
 struct SambungConversationItem: Identifiable {
 	enum Target {
@@ -60,12 +92,13 @@ struct SambungInbox: View {
 	private var allUsers: [UserEntity]
 
 	@Environment(\.horizontalSizeClass) private var sizeClass
-	/// The open conversation. A stack on a phone; on a Mac or iPad its last entry is the selection.
-	@State private var path: [SambungRoute] = []
+	@Bindable var navigation: SambungChatNavigation
 	@State private var summaries: [Int64: DirectMessageSummary] = [:]
 	@State private var channelItems: [SambungConversationItem] = []
-	@State private var searchText = ""
 	@State private var isPickingContact = false
+	@State private var userToSave: UserEntity?
+	/// Bumped when a contact name changes, so titles are read again.
+	@State private var contactsRevision = 0
 	@State private var itemToDelete: SambungConversationItem?
 	#if DEBUG
 	@State private var didDebugOpen = false
@@ -90,12 +123,8 @@ struct SambungInbox: View {
 				isMuted: user.mute
 			)
 		}
-		let all = SambungConversationItem.sorted(channelItems + userItems, pinned: store.pinned)
-		let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
-		guard !query.isEmpty else { return all }
-		return all.filter {
-			$0.title.localizedStandardContains(query) || $0.preview.localizedStandardContains(query)
-		}
+		_ = contactsRevision
+		return SambungConversationItem.sorted(channelItems + userItems, pinned: store.pinned)
 	}
 
 	var body: some View {
@@ -105,7 +134,7 @@ struct SambungInbox: View {
 		.sheet(isPresented: $isPickingContact) {
 			SambungContactPicker { user in
 				isPickingContact = false
-				path = [.user(num: user.num)]
+				navigation.open(.user(num: user.num))
 			}
 		}
 		.confirmationDialog(
@@ -118,6 +147,10 @@ struct SambungInbox: View {
 			}
 		} message: {
 			Text("Pesan dihapus dari HP ini saja. Orang lain tetap menyimpannya.")
+		}
+		.sambungContactAlert(user: $userToSave)
+		.onReceive(NotificationCenter.default.publisher(for: NodeDisplayNameStore.didChangeNotification)) { _ in
+			contactsRevision += 1
 		}
 		.task(id: refreshID) { await refresh() }
 		.onReceive(
@@ -132,14 +165,16 @@ struct SambungInbox: View {
 
 	/// iPhone: the inbox pushes the conversation.
 	private var stackLayout: some View {
-		NavigationStack(path: $path) {
+		NavigationStack(path: $navigation.path) {
 			inbox(asSidebar: false)
 				.navigationDestination(for: SambungRoute.self) { route in
 					SambungConversation(route: route)
 						// A conversation takes the whole screen; the tab bar comes back with the inbox.
 						.toolbar(.hidden, for: .tabBar)
+						// An @mention opens the node here, like a tap on an avatar does.
+						.environment(\.sambungOpenNode) { navigation.path.append($0) }
 				}
-				.navigationDestination(for: Int64.self) { nodeDetail($0) }
+				.navigationDestination(for: Int64.self) { nodeDetail($0).toolbar(.hidden, for: .tabBar) }
 		}
 	}
 
@@ -151,7 +186,7 @@ struct SambungInbox: View {
 		} detail: {
 			NavigationStack {
 				Group {
-					if let route = path.last {
+					if let route = navigation.selected {
 						SambungConversation(route: route)
 							.id(route)
 					} else {
@@ -180,7 +215,6 @@ struct SambungInbox: View {
 					}
 				}
 			}
-			.searchable(text: $searchText, prompt: "Cari percakapan")
 	}
 
 	@ViewBuilder
@@ -191,16 +225,12 @@ struct SambungInbox: View {
 		}
 	}
 
-	private var selectedRoute: Binding<SambungRoute?> {
-		Binding(get: { path.last }, set: { path = $0.map { [$0] } ?? [] })
-	}
-
 	@ViewBuilder
 	private func list(asSidebar: Bool) -> some View {
 		let visible = items
 		Group {
 			if asSidebar {
-				List(selection: selectedRoute) { rows(visible, asSidebar: true) }
+				List(selection: $navigation.selected) { rows(visible, asSidebar: true) }
 			} else {
 				List { rows(visible, asSidebar: false) }
 			}
@@ -208,26 +238,17 @@ struct SambungInbox: View {
 		.listStyle(.plain)
 		.overlay {
 			if visible.isEmpty {
-				if searchText.isEmpty {
-					ContentUnavailableView(
-						"Belum ada percakapan",
-						systemImage: "bubble.left.and.bubble.right",
-						description: Text("Sambungkan radio, lalu kirim pesan pertama ke channel atau ke satu orang.")
-					)
-				} else {
-					ContentUnavailableView.search(text: searchText)
-				}
+				ContentUnavailableView(
+					"Belum ada percakapan",
+					systemImage: "bubble.left.and.bubble.right",
+					description: Text("Sambungkan radio, lalu kirim pesan pertama ke channel atau ke satu orang.")
+				)
 			}
 		}
 	}
 
 	@ViewBuilder
 	private func rows(_ visible: [SambungConversationItem], asSidebar: Bool) -> some View {
-		if !accessoryManager.isConnected {
-			SambungLinkBanner(router: router)
-				.listRowSeparator(.hidden)
-				.listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
-		}
 		ForEach(visible) { item in
 			let row = SambungInboxRow(item: item, isPinned: store.isPinned(item.key), draft: store.draft(for: item.key))
 			Group {
@@ -242,6 +263,13 @@ struct SambungInbox: View {
 			}
 			// The same actions for a mouse (right-click) and for a long press.
 			.contextMenu {
+				if case let .user(user) = item.target {
+					Button {
+						userToSave = user
+					} label: {
+						Label(SambungContacts.isContact(user.num) ? "Ubah kontak" : "Simpan kontak", systemImage: "person.crop.circle.badge.plus")
+					}
+				}
 				pinButton(item)
 				muteButton(item)
 				deleteButton(item)
@@ -284,9 +312,9 @@ struct SambungInbox: View {
 		channelItems = buildChannelItems()
 		#if DEBUG
 		// Screenshot tooling: SAMBUNG_OPEN=channel opens the first channel on a simulator launch.
-		if ProcessInfo.processInfo.environment["SAMBUNG_OPEN"] == "channel", path.isEmpty, !didDebugOpen, let first = channelItems.first {
+		if ProcessInfo.processInfo.environment["SAMBUNG_OPEN"] == "channel", navigation.path.isEmpty, !didDebugOpen, let first = channelItems.first {
 			didDebugOpen = true
-			path = [first.route]
+			navigation.open(first.route)
 		}
 		#endif
 		let activeNum = Int64(accessoryManager.activeDeviceNum ?? 0)
@@ -379,18 +407,18 @@ struct SambungInbox: View {
 				guard let channel = connectedNode?.myInfo?.channels.first(where: { $0.id == channelId }) else {
 					return // Not resolvable yet; keep the payload and retry on the next appear.
 				}
-				path = [.channel(index: channel.index)]
+				navigation.open(.channel(index: channel.index))
 			} else {
-				path = []
+				navigation.popToRoot()
 			}
 		case let .directMessages(userNum, _):
-			path = userNum.map { [.user(num: $0)] } ?? []
+			if let userNum { navigation.open(.user(num: userNum)) } else { navigation.popToRoot() }
 		}
 		router.messagesState = nil
 	}
 }
 
-private struct SambungInboxRow: View {
+struct SambungInboxRow: View {
 	let item: SambungConversationItem
 	let isPinned: Bool
 	let draft: String
@@ -475,36 +503,6 @@ private struct SambungInboxRow: View {
 	}
 }
 
-/// Shown at the top of the inbox while no radio is connected.
-private struct SambungLinkBanner: View {
-	@ObservedObject var router: Router
-
-	var body: some View {
-		Button {
-			router.selectedTab = .connect
-		} label: {
-			HStack(spacing: 12) {
-				Image(systemName: "antenna.radiowaves.left.and.right.slash")
-					.font(.title3)
-					.foregroundStyle(SambungTheme.bata)
-				VStack(alignment: .leading, spacing: 2) {
-					Text("Belum tersambung ke radio")
-						.font(.subheadline.weight(.semibold))
-						.foregroundStyle(.primary)
-					Text("Pesan baru belum bisa dikirim atau diterima. Ketuk untuk menyambungkan.")
-						.font(.footnote)
-						.foregroundStyle(.secondary)
-						.multilineTextAlignment(.leading)
-				}
-				Spacer(minLength: 0)
-			}
-			.padding(12)
-			.background(Color(.secondarySystemBackground), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-		}
-		.buttonStyle(.plain)
-	}
-}
-
 /// Pick someone on the mesh to start a direct message with.
 private struct SambungContactPicker: View {
 	@EnvironmentObject private var accessoryManager: AccessoryManager
@@ -519,30 +517,35 @@ private struct SambungContactPicker: View {
 		return users.filter { user in
 			user.num != activeNum && (query.isEmpty
 				|| user.displayLongName.localizedStandardContains(query)
+				|| (user.longName ?? "").localizedStandardContains(query)
 				|| (user.shortName ?? "").localizedStandardContains(query))
+		}
+	}
+
+	private func rows(_ users: [UserEntity]) -> some View {
+		ForEach(users) { user in
+			Button {
+				onPick(user)
+			} label: {
+				SambungPersonLabel(
+					user: user,
+					detail: user.userNode.map { SambungReach(lastHeard: $0.lastHeard, hopsAway: Int($0.hopsAway), viaMqtt: $0.viaMqtt).summary() }
+				)
+			}
 		}
 	}
 
 	var body: some View {
 		NavigationStack {
-			List(visible) { user in
-				Button {
-					onPick(user)
-				} label: {
-					HStack(spacing: 12) {
-						SambungAvatar(kind: .user(shortName: user.shortName ?? "?", num: user.num), size: 40)
-						VStack(alignment: .leading, spacing: 2) {
-							Text(user.displayLongName).font(.sambungName(.body)).foregroundStyle(.primary)
-							if let node = user.userNode {
-								Text(SambungReach(lastHeard: node.lastHeard, hopsAway: Int(node.hopsAway), viaMqtt: node.viaMqtt).summary())
-									.font(.footnote)
-									.foregroundStyle(.secondary)
-							}
-						}
-					}
+			let (contacts, others) = SambungContacts.split(visible) { $0.num }
+			List {
+				if !contacts.isEmpty {
+					Section("Kontak") { rows(contacts) }
+				}
+				if !others.isEmpty {
+					Section(contacts.isEmpty ? "Orang di jaringan" : "Orang lain di jaringan") { rows(others) }
 				}
 			}
-			.listStyle(.plain)
 			.overlay {
 				if visible.isEmpty {
 					ContentUnavailableView(

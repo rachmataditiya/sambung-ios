@@ -43,7 +43,7 @@ struct SambungConnect: View {
 	}
 
 	var body: some View {
-		NavigationStack {
+		Group {
 			List {
 				Section {
 					statusCard
@@ -99,6 +99,7 @@ struct SambungConnect: View {
 				}
 			}
 			.navigationTitle("Sambungan")
+			.navigationBarTitleDisplayMode(.inline)
 		}
 		.alert("Sambung lewat WiFi", isPresented: $isAskingAddress) {
 			TextField("192.168.1.20", text: $address)
@@ -141,7 +142,7 @@ struct SambungConnect: View {
 						Text(verbatim: device.longName ?? device.name)
 							.font(.sambungName(.title3))
 							.lineLimit(2)
-						Text(verbatim: stateText)
+						Text(verbatim: accessoryManager.sambungStateText)
 							.font(.subheadline)
 							.foregroundStyle(accessoryManager.isConnected ? SambungTheme.daun : Color.secondary)
 					}
@@ -189,17 +190,6 @@ struct SambungConnect: View {
 		.padding(16)
 		.frame(maxWidth: .infinity, alignment: .leading)
 		.background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
-	}
-
-	private var stateText: String {
-		switch accessoryManager.state {
-		case .subscribed: return "Tersambung"
-		case .connecting: return "Menyambungkan…"
-		case let .retrying(attempt, maxAttempts): return "Mencoba lagi (\(attempt) dari \(maxAttempts))…"
-		case let .retrievingDatabase(nodeCount): return nodeCount > 0 ? "Mengambil daftar node (\(nodeCount))…" : "Mengambil data dari radio…"
-		case .communicating: return "Menyiapkan radio…"
-		case .uninitialized, .idle, .discovering: return accessoryManager.isConnected ? "Tersambung" : "Menyambungkan…"
-		}
 	}
 
 	private func batteryLevel(of device: Device) -> Int? {
@@ -256,6 +246,20 @@ struct SambungConnect: View {
 		guard !trimmed.isEmpty else { return }
 		Task {
 			await Meshtastic.connectManually(trimmed, transportType: .tcp, isSwitchingRadio: $isSwitchingRadio, accessoryManager: accessoryManager, router: router)
+		}
+	}
+}
+
+extension AccessoryManager {
+	/// The link's state in a few words, for the connection card and the bar above the tab bar.
+	var sambungStateText: String {
+		switch state {
+		case .subscribed: return "Tersambung"
+		case .connecting: return "Menyambungkan…"
+		case let .retrying(attempt, maxAttempts): return "Mencoba lagi (\(attempt) dari \(maxAttempts))…"
+		case let .retrievingDatabase(nodeCount): return nodeCount > 0 ? "Mengambil daftar node (\(nodeCount))…" : "Mengambil data dari radio…"
+		case .communicating: return "Menyiapkan radio…"
+		case .uninitialized, .idle, .discovering: return isConnected ? "Tersambung" : "Menyambungkan…"
 		}
 	}
 }

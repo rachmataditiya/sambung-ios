@@ -190,8 +190,8 @@ struct NodeDetail: View {
 	@ViewBuilder
 	private var nodeDetailList: some View {
 		List {
-			NodeInfoItem(nodeNum: nodeNum, liveScreen: liveScreen)
-				.id(nodeNum)
+			// Sambung: the person and the main actions come first; the hardware card moved down.
+			SambungNodeHeader(node: node)
 			nodeSection
 			environmentSection
 			airQualitySection
@@ -199,6 +199,8 @@ struct NodeDetail: View {
 			hostSection
 			logsSection
 			actionsSection
+			NodeInfoItem(nodeNum: nodeNum, liveScreen: liveScreen)
+				.id(nodeNum)
 			administrationSection
 		}
 		.listStyle(.insetGrouped)
@@ -247,12 +249,7 @@ struct NodeDetail: View {
 	private var nodeSection: some View {
 		Section("Node") {
 			HStack(alignment: .center) {
-				Spacer()
-				CircleText(
-					text: currentUser?.shortName ?? "?",
-					color: Color(UIColor(hex: UInt32(nodeNum))),
-					circleSize: 75
-				)
+				// Sambung: the avatar is in the header above.
 				if node.snr != 0 && !node.viaMqtt && node.hopsAway == 0 {
 					Spacer()
 					VStack {

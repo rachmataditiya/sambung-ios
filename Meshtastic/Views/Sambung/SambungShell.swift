@@ -2,10 +2,12 @@
 //  SambungShell.swift
 //  Sambung
 //
-//  Three tabs instead of upstream's five: Chat, Jaringan (nodes + map) and Perangkat
-//  (connection + settings). The router keeps its five-way `selectedTab`, so deep links,
-//  notifications and upstream code that switches tabs keep working; this view maps it down.
+//  Four tabs and a search button: Chat, Jaringan (nodes), Peta (map), Perangkat (connection +
+//  settings). The router keeps its five-way `selectedTab`, so deep links, notifications and
+//  upstream code that switches tabs keep working; `.settings` and `.connect` both land on
+//  Perangkat.
 //
+import SwiftData
 import SwiftUI
 
 struct SambungShell: View {
@@ -16,27 +18,40 @@ struct SambungShell: View {
 	let tabSelection: Binding<NavigationState.Tab>
 
 	enum Section: Hashable {
-		case chat, network, device
+		case chat, network, map, device, search
 
 		init(_ tab: NavigationState.Tab) {
 			switch tab {
 			case .messages: self = .chat
-			case .nodes, .map: self = .network
+			case .nodes: self = .network
+			case .map: self = .map
 			case .settings, .connect: self = .device
 			}
 		}
 	}
 
+	/// The open conversation; lives here so tapping Chat again can close it.
+	@State private var chat = SambungChatNavigation()
+	/// Search is not one of the router's tabs, so the shell remembers it.
+	@State private var isSearching = false
+
 	private var selection: Binding<Section> {
 		Binding(
-			get: { Section(router.selectedTab) },
+			get: { isSearching ? .search : Section(router.selectedTab) },
 			set: { section in
-				let current = router.selectedTab
+				let wasShowing = isSearching ? Section.search : Section(router.selectedTab)
+				isSearching = section == .search
 				switch section {
-				case .chat: tabSelection.wrappedValue = .messages
-				// Re-selecting keeps the sub-screen the person was on.
-				case .network: tabSelection.wrappedValue = current == .map ? .map : .nodes
-				case .device: tabSelection.wrappedValue = current == .settings ? .settings : .connect
+				case .chat:
+					if wasShowing == .chat { chat.popToRoot() }
+					tabSelection.wrappedValue = .messages
+				case .network: tabSelection.wrappedValue = .nodes
+				case .map: tabSelection.wrappedValue = .map
+				case .device:
+					// Tapping Perangkat again goes back to its first screen.
+					if wasShowing == .device { router.popToRoot(tab: .settings) }
+					router.selectedTab = .settings
+				case .search: break
 				}
 			}
 		)
@@ -44,78 +59,124 @@ struct SambungShell: View {
 
 	var body: some View {
 		TabView(selection: selection) {
-			SambungInbox(router: router)
-				.trackScreen(NavigationState.Tab.messages.screenName)
-				.tabItem { Label("Chat", systemImage: "bubble.left.and.bubble.right") }
-				.tag(Section.chat)
-				.badge(appState.totalUnreadMessages)
+			Tab("Chat", systemImage: "bubble.left.and.bubble.right", value: Section.chat) {
+				SambungInbox(router: router, navigation: chat)
+					.trackScreen(NavigationState.Tab.messages.screenName)
+			}
+			.badge(appState.totalUnreadMessages)
 
-			SambungLazyTab(isActive: Section(router.selectedTab) == .network) {
-				SambungSwitcher(
-					first: "Daftar", second: "Peta",
-					showsSecond: Binding(get: { router.selectedTab == .map }, set: { router.selectedTab = $0 ? .map : .nodes })
-				) {
+			Tab("Jaringan", systemImage: "point.3.connected.trianglepath.dotted", value: Section.network) {
+				SambungLazyTab(isActive: selection.wrappedValue == .network) {
 					NodeList().trackScreen(NavigationState.Tab.nodes.screenName)
-				} secondContent: {
+				}
+			}
+
+			Tab("Peta", systemImage: "map", value: Section.map) {
+				SambungLazyTab(isActive: selection.wrappedValue == .map) {
 					MeshMapMK(router: router).trackScreen(NavigationState.Tab.map.screenName)
 				}
 			}
-			.tabItem { Label("Jaringan", systemImage: "point.3.connected.trianglepath.dotted") }
-			.tag(Section.network)
 
-			SambungLazyTab(isActive: Section(router.selectedTab) == .device) {
-				SambungSwitcher(
-					first: "Sambungan", second: "Setelan",
-					showsSecond: Binding(get: { router.selectedTab == .settings }, set: { router.selectedTab = $0 ? .settings : .connect })
-				) {
-					SambungConnect(router: router).trackScreen(NavigationState.Tab.connect.screenName)
-				} secondContent: {
+			Tab("Perangkat", systemImage: "antenna.radiowaves.left.and.right", value: Section.device) {
+				SambungLazyTab(isActive: selection.wrappedValue == .device) {
 					Settings().trackScreen(NavigationState.Tab.settings.screenName)
 				}
 			}
-			.tabItem { Label("Perangkat", systemImage: "antenna.radiowaves.left.and.right") }
-			.tag(Section.device)
+
+			Tab(value: Section.search, role: .search) {
+				SambungSearch { route in
+					chat.open(route)
+					isSearching = false
+					router.selectedTab = .messages
+				}
+			}
 		}
+		.tabBarMinimizeBehavior(.onScrollDown)
+		// Only while there is no radio, and not under a conversation's message field.
+		.tabViewBottomAccessory(isEnabled: !accessoryManager.isConnected && chat.path.isEmpty) {
+			SambungLinkAccessory {
+				isSearching = false
+				router.selectedTab = .connect
+			}
+		}
+		// A deep link or a notification picks a router tab; that wins over the search tab.
+		.onChange(of: router.selectedTab) { isSearching = false }
 		.task {
 			SambungOutbox.shared.start(accessoryManager: accessoryManager)
 			#if DEBUG
-			// Screenshot tooling: SAMBUNG_START=chat|device picks the tab a simulator launch opens on.
-			// Waits a moment: the demo seed sets its own tab as the window appears.
-			try? await Task.sleep(for: .seconds(1))
-			switch ProcessInfo.processInfo.environment["SAMBUNG_START"] {
-			case "chat": router.selectedTab = .messages
-			case "device": router.selectedTab = .connect
-			default: break
-			}
+			await applyDebugLaunchOptions()
 			#endif
 		}
 	}
+
+	#if DEBUG
+	/// Screenshot tooling for simulator launches.
+	/// SAMBUNG_START=chat|network|map|device|connect|search picks the tab.
+	/// SAMBUNG_OPEN=setting:<SettingsNavigationState raw value> | node | channel (see SambungInbox).
+	private func applyDebugLaunchOptions() async {
+		let environment = ProcessInfo.processInfo.environment
+		// Waits a moment: the demo seed sets its own tab as the window appears.
+		try? await Task.sleep(for: .seconds(1))
+		switch environment["SAMBUNG_START"] {
+		case "chat": router.selectedTab = .messages
+		case "network": router.selectedTab = .nodes
+		case "map": router.selectedTab = .map
+		case "device": router.selectedTab = .settings
+		case "connect": router.selectedTab = .connect
+		case "search": isSearching = true
+		default: break
+		}
+		guard let open = environment["SAMBUNG_OPEN"] else { return }
+		if open.hasPrefix("setting:"), let setting = SettingsNavigationState(rawValue: String(open.dropFirst(8))) {
+			router.selectedTab = .settings
+			try? await Task.sleep(for: .milliseconds(500))
+			router.settingsPath = [setting]
+		} else if open == "node" {
+			let me = Int64(UserDefaults.preferredPeripheralNum)
+			let nodes = (try? PersistenceController.shared.context.fetch(FetchDescriptor<NodeInfoEntity>())) ?? []
+			if let node = nodes.first(where: { $0.num != me }) { router.navigateToNodeDetail(nodeNum: node.num) }
+		}
+	}
+	#endif
 }
 
-/// Two upstream screens behind one tab, with a segmented switch on top.
-/// shortcut: the switch sits above each screen's own navigation bar; the Jaringan and
-/// Perangkat screens get their own Sambung layout in stage 2 and this goes away.
-private struct SambungSwitcher<First: View, Second: View>: View {
-	let first: LocalizedStringKey
-	let second: LocalizedStringKey
-	@Binding var showsSecond: Bool
-	@ViewBuilder let firstContent: () -> First
-	@ViewBuilder let secondContent: () -> Second
+/// Shown above the tab bar while no radio is connected. Tap it to connect one.
+private struct SambungLinkAccessory: View {
+	@EnvironmentObject private var accessoryManager: AccessoryManager
+	let action: () -> Void
 
 	var body: some View {
-		Group {
-			if showsSecond { secondContent() } else { firstContent() }
-		}
-		.safeAreaInset(edge: .top, spacing: 0) {
-			Picker("Tampilan", selection: $showsSecond) {
-				Text(first).tag(false)
-				Text(second).tag(true)
+		Button(action: action) {
+			HStack(spacing: 8) {
+				Circle()
+					.fill(accessoryManager.isConnected ? SambungTheme.daun : accessoryManager.isConnecting ? SambungTheme.kunyit : SambungTheme.bata)
+					.frame(width: 9, height: 9)
+				Text(verbatim: title)
+					.font(.subheadline.weight(.semibold))
+					.lineLimit(1)
+				Spacer(minLength: 8)
+				Text(detail)
+					.font(.footnote)
+					.foregroundStyle(.secondary)
+					.lineLimit(1)
 			}
-			.pickerStyle(.segmented)
 			.padding(.horizontal, 16)
-			.padding(.vertical, 6)
-			.background(.bar)
+			.contentShape(Rectangle())
 		}
+		.buttonStyle(.plain)
+		.accessibilityHint("Membuka sambungan radio")
+	}
+
+	private var title: String {
+		guard accessoryManager.isConnected || accessoryManager.isConnecting, let device = accessoryManager.activeConnection?.device else {
+			return String(localized: "Belum tersambung ke radio")
+		}
+		return device.longName ?? device.name
+	}
+
+	private var detail: LocalizedStringKey {
+		if accessoryManager.isConnected { return "Tersambung" }
+		return accessoryManager.isConnecting ? "Menyambungkan…" : "Sambungkan"
 	}
 }
 

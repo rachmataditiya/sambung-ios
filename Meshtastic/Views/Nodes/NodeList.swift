@@ -250,9 +250,6 @@ struct NodeList: View {
 		.statusMessageAlert(node: $nodeForStatusMessageEdit)
 		.navigationSplitViewColumnWidth(min: 100, ideal: 300, max: .infinity)
 		.toolbar {
-			ToolbarItem(placement: .topBarLeading) {
-				MeshtasticLogo()
-			}
 			ToolbarItem(placement: .topBarTrailing) {
 				ConnectedDevice(
 					deviceConnected: accessoryManager.isConnected,
@@ -443,19 +440,8 @@ private struct FilteredNodeList: View {
 			// persisted property in that window traps (the NodeListItem SIGTRAP family).
 			if entry.node.modelContext != nil && !entry.node.isDeleted {
 				NavigationLink(value: entry.id) {
-					switch nodeListDensity {
-					case .compact:
-						NodeListItemCompact(
-							node: entry.node,
-							isDirectlyConnected: entry.id == accessoryManager.activeDeviceNum,
-							connectedNode: accessoryManager.activeConnection?.device.num ?? -1)
-					case .standard:
-						NodeListItem(
-							node: entry.node,
-							isDirectlyConnected: entry.id == accessoryManager.activeDeviceNum,
-							connectedNode: accessoryManager.activeConnection?.device.num ?? -1
-						)
-					}
+					// Sambung: one row for every density; the technical detail is on the node's screen.
+					SambungNodeRow(node: entry.node, isOwnRadio: entry.id == accessoryManager.activeDeviceNum)
 				}
 				.contextMenu {
 					contextMenuActions(
@@ -474,7 +460,7 @@ private struct FilteredNodeList: View {
 					.accessibilityHidden(true)
 			}
 		}
-		.navigationTitle(String.localizedStringWithFormat("Nodes (%@)".localized, String(displayedNodes.count)))
+		.navigationTitle("Jaringan")
 		.task(id: router.selectedTab) {
 			// Recompute the displayed list on a gentle cadence instead of inside `body`.
 			// During live ingestion every packet writes to SwiftData; running displayNodes

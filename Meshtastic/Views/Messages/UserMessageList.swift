@@ -415,8 +415,8 @@ struct UserMessageList: View {
 			.fixedSize(horizontal: false, vertical: true)
 		}
 		.navigationBarTitleDisplayMode(.inline)
-		.searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Find in conversation")
-		.autocorrectionDisabled()
+		// Sambung: the find field opens from the title's menu instead of always taking a row.
+		.sambungFind(text: $searchQuery)
 		.task(id: searchQuery) { await debouncedSearch() }
 		.toolbar {
 			if !user.keyMatch {
@@ -441,10 +441,7 @@ struct UserMessageList: View {
 				}
 			}
 			ToolbarItem(placement: .principal) {
-				HStack {
-					CircleText(text: user.shortName ?? "?", color: Color(UIColor(hex: UInt32(user.num))), circleSize: 44)
-					Text(user.displayLongName).font(.headline)
-				}
+				SambungConversationTitle(kind: .user(user))
 			}
 			ToolbarItem(placement: .navigationBarTrailing) {
 				ZStack {

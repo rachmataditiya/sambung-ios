@@ -541,10 +541,9 @@ struct Connect: View {
 				Text(accessoryManager.radioSwitchFailure ?? "")
 			}
 			.navigationTitle("Connect")
+			// Sambung shows this screen only as a sheet, so it needs a way out.
+			.sheetCloseButton()
 			.toolbar {
-				ToolbarItem(placement: .topBarLeading) {
-					MeshtasticLogo()
-				}
 				ToolbarItem(placement: .topBarTrailing) {
 					ConnectedDevice(
 						deviceConnected: accessoryManager.isConnected,

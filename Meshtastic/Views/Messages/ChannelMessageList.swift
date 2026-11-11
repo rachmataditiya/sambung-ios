@@ -391,8 +391,8 @@ struct ChannelMessageList: View {
 		}
 		}
 		.navigationBarTitleDisplayMode(.inline)
-		.searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Find in conversation")
-		.autocorrectionDisabled()
+		// Sambung: the find field opens from the title's menu instead of always taking a row.
+		.sambungFind(text: $searchQuery)
 		.task(id: searchQuery) { await debouncedSearch() }
 		.toolbar {
 			ToolbarItem(placement: .principal) {
@@ -406,8 +406,7 @@ struct ChannelMessageList: View {
 						}
 						.accessibilityElement(children: .combine)
 					} else {
-						CircleText(text: String(channel.index), color: .accentFill, circleSize: 44).fixedSize()
-						Text(String(channel.name ?? "Unknown")).font(.headline)
+						SambungConversationTitle(kind: .channel(name: SambungInbox.title(for: channel)))
 					}
 				}
 			}
