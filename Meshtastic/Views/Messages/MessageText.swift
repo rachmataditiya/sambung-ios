@@ -111,7 +111,13 @@ struct MessageText: View {
 		)
 		return SambungMediaSlot(fromNum: message.fromUser?.num, messageID: message.messageId, isCurrentUser: isCurrentUser) {
 			if let coordinate = SambungLocationMessage.coordinate(in: message.messagePayload ?? "") {
-				SambungLocationBubble(coordinate: coordinate, isCurrentUser: isCurrentUser)
+				VStack(alignment: .leading, spacing: 8) {
+					// An SOS or a note sent along with the position stays readable above the map.
+					if let caption = SambungLocationMessage.caption(in: message.messagePayload ?? "") {
+						Text(verbatim: caption)
+					}
+					SambungLocationBubble(coordinate: coordinate, isCurrentUser: isCurrentUser)
+				}
 			} else if let attributed = try? AttributedString(markdown: payload, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)) {
 				Text(colorLinks(in: attributed))
 			} else {

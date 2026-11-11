@@ -14,6 +14,7 @@ struct SambungDeviceSection: View {
 	@AppStorage(SambungConfig.languageKey) private var language = "id"
 	@State private var isShowingContacts = false
 	@State private var isEditingQuickReplies = false
+	@State private var isEditingSOS = false
 
 	var body: some View {
 		Section {
@@ -42,6 +43,15 @@ struct SambungDeviceSection: View {
 			}
 			.tint(Color(.label))
 			.sheet(isPresented: $isEditingQuickReplies) { SambungQuickReplyEditor() }
+			Button {
+				isEditingSOS = true
+			} label: {
+				Label("SOS", systemImage: "sos")
+			}
+			.tint(Color(.label))
+			.sheet(isPresented: $isEditingSOS) {
+				NavigationStack { SambungSOSSettings().sheetCloseButton() }
+			}
 			Toggle(isOn: $autoResend) {
 				Label("Kirim ulang otomatis", systemImage: "arrow.clockwise")
 					.labelStyle(SambungSettingsLabelStyle())

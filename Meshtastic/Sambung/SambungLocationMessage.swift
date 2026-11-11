@@ -22,6 +22,17 @@ enum SambungLocationMessage {
 		return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
 	}
 
+	/// What a message says besides its position (an SOS call, a note), or nil when the position
+	/// is all there is.
+	static func caption(in text: String) -> String? {
+		guard let match = text.firstMatch(of: #/📍[^\d\-]*(-?\d{1,2}\.\d{3,}),\s*(-?\d{1,3}\.\d{3,})/#) else { return nil }
+		var rest = text
+		rest.removeSubrange(match.range)
+		// The bell an SOS starts with is for radios to ring, not for reading.
+		let caption = rest.replacingOccurrences(of: "\u{07}", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+		return caption.isEmpty ? nil : caption
+	}
+
 	/// "1,2 km ke arah timur laut": readable with no map tiles at all.
 	static func distanceText(from origin: CLLocationCoordinate2D, to target: CLLocationCoordinate2D) -> String {
 		let meters = CLLocation(latitude: origin.latitude, longitude: origin.longitude)

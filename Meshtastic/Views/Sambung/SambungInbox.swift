@@ -207,6 +207,7 @@ struct SambungInbox: View {
 		list(asSidebar: asSidebar)
 			.navigationTitle("Chat")
 			.toolbar {
+				ToolbarItem(placement: .topBarLeading) { SambungSOSButton() }
 				ToolbarItem(placement: .topBarTrailing) {
 					Button {
 						isPickingContact = true

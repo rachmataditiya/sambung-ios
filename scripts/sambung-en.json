@@ -32,7 +32,6 @@
 "Foto dan suara hanya bisa dikirim lewat pesan langsung atau channel privat.": "Photos and voice can only be sent in direct messages or private channels.",
 "Belum tersambung ke radio.": "No radio connected.",
 "Pesan pengantar tidak tersimpan, kiriman dibatalkan.": "The covering message was not saved, so the transfer was cancelled.",
-
 "Radio di sekitar": "Radios nearby",
 "Saat iPhone meminta PIN, masukkan angka yang tampil di layar radio. Radio tanpa layar memakai 123456.": "When iPhone asks for a PIN, enter the number on the radio's screen. Radios without a screen use 123456.",
 "Sambung lewat alamat IP": "Connect by IP address",
@@ -74,7 +73,6 @@
 "Sinyal kuat": "Strong signal",
 "Sinyal sedang": "Fair signal",
 "Sinyal lemah": "Weak signal",
-
 "Simpan kontak": "Save contact",
 "Ubah kontak": "Edit contact",
 "Nama orangnya": "The person's name",
@@ -85,7 +83,6 @@
 "Belum ada kontak": "No contacts yet",
 "Tekan lama seseorang di Chat atau Jaringan, lalu pilih Simpan kontak, supaya namanya tampil sebagai nama asli.": "Touch and hold someone in Chat or Network, then choose Save contact, to show them by their real name.",
 "Kontak": "Contacts",
-
 "Channel tidak ada di radio ini": "This channel is not on this radio",
 "Sambungkan radio yang memakai channel ini untuk membukanya.": "Connect a radio that uses this channel to open it.",
 "%lld node terdengar dalam 2 jam terakhir": "%lld nodes heard in the last 2 hours",
@@ -93,7 +90,6 @@
 "Cari di percakapan": "Find in conversation",
 "Membuka pilihan percakapan": "Opens conversation options",
 "Tutup": "Close",
-
 "Membuka sambungan radio": "Opens the radio connection",
 "Sambung": "Sambung",
 "Balasan cepat": "Quick replies",
@@ -101,7 +97,6 @@
 "Bahasa": "Language",
 "Berlaku setelah Sambung dibuka ulang.": "Applies the next time Sambung opens.",
 "Ketuk untuk memilih radio": "Tap to pick a radio",
-
 "Hapus percakapan ini?": "Delete this conversation?",
 "Hapus pesan": "Delete messages",
 "Pesan dihapus dari HP ini saja. Orang lain tetap menyimpannya.": "Messages are deleted from this phone only. Other people keep theirs.",
@@ -128,12 +123,10 @@
 "Belum ada orang di jaringan": "Nobody on the network yet",
 "Daftar ini terisi sendiri saat radio mendengar node lain.": "This list fills in as the radio hears other nodes.",
 "Cari nama": "Search names",
-
 "Lokasi yang kamu bagikan": "The location you shared",
 "Lokasi yang dibagikan": "Shared location",
 "Buka di Peta": "Open in Maps",
 "Lokasi dibagikan": "Shared location",
-
 "Pesan suara": "Voice message",
 "Foto": "Photo",
 "Gagal terkirim": "Not sent",
@@ -150,11 +143,9 @@
 "Ukuran": "Size",
 "Yang terlihat di atas adalah yang akan diterima. Terkirim dalam kira-kira %lld detik, dan selama itu radio dipakai untuk foto ini.": "What you see above is what will be received. It takes about %lld seconds to send, and the radio is busy with this photo for that long.",
 "Kirim": "Send",
-
 "Favorit": "Favourite",
 "Radio kamu": "Your radio",
 "Pesan": "Message",
-
 "Langsung terkirim": "Sends right away",
 "Atur balasan cepat": "Edit quick replies",
 "Balasan cepat langsung terkirim saat diketuk. Buat yang pendek, supaya cepat sampai lewat radio.": "A quick reply is sent as soon as you tap it. Keep them short so they get through the radio fast.",
@@ -162,19 +153,16 @@
 "Tambah": "Add",
 "Selesai": "Done",
 "Kembalikan bawaan": "Restore defaults",
-
 "Orang": "People",
 "Cari di Sambung": "Search Sambung",
 "Nama orang, nama channel, atau kata di dalam pesan.": "A person's name, a channel name, or a word in a message.",
 "Cari": "Search",
 "Orang, channel, atau isi pesan": "People, channels, or message text",
 "Kamu": "You",
-
 "Jaringan": "Network",
 "Peta": "Map",
 "Perangkat": "Device",
 "Belum tersambung ke radio": "No radio connected",
-
 "Perekaman tidak bisa dimulai.": "Recording could not start.",
 "Rekaman terlalu pendek. Tahan sedikit lebih lama.": "The recording is too short. Hold a little longer.",
 "Kirim pesan suara": "Send voice message",
@@ -189,8 +177,23 @@
 "Sambung belum diizinkan memakai mikrofon. Izinkan di Pengaturan iPhone.": "Sambung is not allowed to use the microphone yet. Allow it in iPhone Settings.",
 "Hentikan pesan suara": "Stop voice message",
 "Putar pesan suara": "Play voice message",
-
 "Alat": "Tools",
 "Aplikasi": "App",
-"Tentang Sambung": "About Sambung"
+"Tentang Sambung": "About Sambung",
+"Butuh bantuan segera.": "Need help right now.",
+"Panggilan darurat": "Emergency call",
+"SOS aktif, terkirim %lld kali": "SOS on, sent %lld times",
+"Hentikan": "Stop",
+"Hentikan SOS": "Stop SOS",
+"Mengirim pesan darurat berisi posisimu ke %@, diulang tiap %lld menit sampai kamu hentikan.": "Sends an emergency message with your position to %@, again every %lld minutes until you stop it.",
+"Setelan SOS": "SOS settings",
+"Tahan 2 detik": "Hold 2 seconds",
+"Kirim SOS": "Send SOS",
+"Tahan dua detik untuk mengirim": "Hold for two seconds to send",
+"Kirim ke": "Send to",
+"Channel utama terdengar oleh semua orang dalam jangkauan. Kontak hanya menerima kalau radionya terjangkau.": "The primary channel reaches everyone in range. A contact only gets it if their radio can be reached.",
+"Isi pesan": "Message",
+"Ulangi tiap %lld menit": "Repeat every %lld minutes",
+"Pesan diulang dengan posisi terbaru dan berhenti sendiri setelah satu jam.": "The message repeats with your latest position and stops by itself after an hour.",
+"SOS": "SOS"
 }

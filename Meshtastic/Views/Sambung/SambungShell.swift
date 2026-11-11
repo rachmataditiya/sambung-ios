@@ -92,6 +92,8 @@ struct SambungShell: View {
 			}
 		}
 		.tabBarMinimizeBehavior(.onScrollDown)
+		// While an SOS is running it shows on every tab, with the way to stop it.
+		.safeAreaInset(edge: .top, spacing: 0) { SambungSOSBar() }
 		// Only while there is no radio, and not under a conversation's message field.
 		.tabViewBottomAccessory(isEnabled: !accessoryManager.isConnected && chat.path.isEmpty) {
 			SambungLinkAccessory {

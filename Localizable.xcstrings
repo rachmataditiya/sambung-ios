@@ -170398,6 +170398,262 @@
           }
         }
       }
+    },
+    "Butuh bantuan segera." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Need help right now."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Butuh bantuan segera."
+          }
+        }
+      }
+    },
+    "Panggilan darurat" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emergency call"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panggilan darurat"
+          }
+        }
+      }
+    },
+    "SOS aktif, terkirim %lld kali" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOS on, sent %lld times"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOS aktif, terkirim %lld kali"
+          }
+        }
+      }
+    },
+    "Hentikan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hentikan"
+          }
+        }
+      }
+    },
+    "Hentikan SOS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop SOS"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hentikan SOS"
+          }
+        }
+      }
+    },
+    "Mengirim pesan darurat berisi posisimu ke %@, diulang tiap %lld menit sampai kamu hentikan." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sends an emergency message with your position to %@, again every %lld minutes until you stop it."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengirim pesan darurat berisi posisimu ke %@, diulang tiap %lld menit sampai kamu hentikan."
+          }
+        }
+      }
+    },
+    "Setelan SOS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOS settings"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelan SOS"
+          }
+        }
+      }
+    },
+    "Tahan 2 detik" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold 2 seconds"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tahan 2 detik"
+          }
+        }
+      }
+    },
+    "Kirim SOS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send SOS"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirim SOS"
+          }
+        }
+      }
+    },
+    "Tahan dua detik untuk mengirim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold for two seconds to send"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tahan dua detik untuk mengirim"
+          }
+        }
+      }
+    },
+    "Kirim ke" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send to"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kirim ke"
+          }
+        }
+      }
+    },
+    "Channel utama terdengar oleh semua orang dalam jangkauan. Kontak hanya menerima kalau radionya terjangkau." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The primary channel reaches everyone in range. A contact only gets it if their radio can be reached."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Channel utama terdengar oleh semua orang dalam jangkauan. Kontak hanya menerima kalau radionya terjangkau."
+          }
+        }
+      }
+    },
+    "Isi pesan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isi pesan"
+          }
+        }
+      }
+    },
+    "Ulangi tiap %lld menit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeat every %lld minutes"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ulangi tiap %lld menit"
+          }
+        }
+      }
+    },
+    "Pesan diulang dengan posisi terbaru dan berhenti sendiri setelah satu jam." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The message repeats with your latest position and stops by itself after an hour."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pesan diulang dengan posisi terbaru dan berhenti sendiri setelah satu jam."
+          }
+        }
+      }
+    },
+    "SOS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOS"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SOS"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

@@ -340,3 +340,50 @@ struct SambungShellTests {
 		#expect(SambungShell.Section(.connect) == .device)
 	}
 }
+
+@Suite("Sambung SOS")
+struct SambungSOSTests {
+	@Test func theCallNamesTheSenderAndCarriesThePositionAsALocationLine() {
+		let message = SambungSOS.message(name: "Budi", text: " Butuh bantuan segera. ", coordinate: CLLocationCoordinate2D(latitude: -6.2088, longitude: 106.8456))
+		#expect(message == "\u{07}🆘 SOS Budi: Butuh bantuan segera.\n📍 Lokasi saya: -6.20880, 106.84560")
+		// Sambung draws the position as a map and keeps the call readable above it.
+		#expect(SambungLocationMessage.coordinate(in: message)?.latitude == -6.2088)
+		#expect(SambungLocationMessage.caption(in: message) == "🆘 SOS Budi: Butuh bantuan segera.")
+	}
+
+	@Test func withoutAPositionTheCallStillGoesOut() {
+		#expect(SambungSOS.message(name: "Budi", text: "Tolong", coordinate: nil) == "\u{07}🆘 SOS Budi: Tolong")
+	}
+
+	@Test func aPlainSharedPositionHasNoCaption() {
+		#expect(SambungLocationMessage.caption(in: "📍 Lokasi saya: -6.20880, 106.84560") == nil)
+		#expect(SambungLocationMessage.caption(in: "no position here") == nil)
+	}
+
+	@Test func aConversationKeyBecomesAUserOrAChannel() {
+		#expect(SambungSOS.target(for: "channel:2")?.channel == 2)
+		#expect(SambungSOS.target(for: "channel:2")?.userNum == 0)
+		#expect(SambungSOS.target(for: "user:305419896")?.userNum == 305_419_896)
+		#expect(SambungSOS.target(for: "nonsense") == nil)
+	}
+
+	@Test func repeatsAreNeverFasterThanOnceAMinuteAndStopAfterAnHour() {
+		#expect(SambungSOS.clampedInterval(5) == 60)
+		#expect(SambungSOS.clampedInterval(300) == 300)
+		let start = Date(timeIntervalSince1970: 1_000_000)
+		#expect(!SambungSOS.isOver(startedAt: start, now: start.addingTimeInterval(3599)))
+		#expect(SambungSOS.isOver(startedAt: start, now: start.addingTimeInterval(3600)))
+	}
+
+	@Test @MainActor func settingsAreKeptAndTheIntervalIsClamped() throws {
+		let defaults = try #require(UserDefaults(suiteName: "sambung-sos-tests"))
+		defaults.removePersistentDomain(forName: "sambung-sos-tests")
+		let sos = SambungSOS(defaults: defaults)
+		#expect(sos.destinationKey == "channel:0")
+		#expect(sos.interval == 120)
+		sos.destinationKey = "user:7"
+		sos.interval = 10
+		#expect(SambungSOS(defaults: defaults).destinationKey == "user:7")
+		#expect(SambungSOS(defaults: defaults).interval == 60)
+	}
+}
