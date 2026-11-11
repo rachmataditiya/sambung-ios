@@ -42,6 +42,8 @@ struct MeshtasticAppleApp: App {
 		!isRunningTests && !isChirpyOTADemo
 	}
 	init() {
+		// Sambung: Indonesian first. Not under tests, which compare upstream's English strings.
+		if Self.shouldInitializeAppServices { SambungConfig.applyLanguage() }
 
 		let persistenceController: PersistenceController? = Self.shouldInitializeAppServices ? PersistenceController.shared : nil
 #if DEBUG

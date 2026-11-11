@@ -436,7 +436,7 @@ actor DocTranslationService {
 
 		let totalPages = orderedPages.count
 		let uploadTotal = totalPages + 3 // pages + nav-labels.json + search-index.json + manifest.json
-		let participateInDistributedTranslations = UserDefaults.standard.object(forKey: "participateInDistributedTranslations") as? Bool ?? true
+		let participateInDistributedTranslations = UserDefaults.standard.object(forKey: "participateInDistributedTranslations") as? Bool ?? false
 
 		updateProgress(.translating(completed: 0, total: totalPages, description: orderedPages.first?.title ?? "Starting"))
 

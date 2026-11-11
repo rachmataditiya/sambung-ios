@@ -11,6 +11,7 @@ struct SambungDeviceSection: View {
 	@EnvironmentObject private var accessoryManager: AccessoryManager
 	@ObservedObject var router: Router
 	@AppStorage(SambungOutbox.enabledKey) private var autoResend = true
+	@AppStorage(SambungConfig.followPhoneLanguageKey) private var followsPhoneLanguage = false
 	@State private var isShowingContacts = false
 	@State private var isEditingQuickReplies = false
 
@@ -44,6 +45,19 @@ struct SambungDeviceSection: View {
 			Toggle(isOn: $autoResend) {
 				Label("Kirim ulang otomatis", systemImage: "arrow.clockwise")
 					.labelStyle(SambungSettingsLabelStyle())
+			}
+			Toggle(isOn: $followsPhoneLanguage) {
+				Label {
+					VStack(alignment: .leading, spacing: 2) {
+						Text("Ikuti bahasa iPhone")
+						Text("Kalau mati, Sambung berbahasa Indonesia. Berlaku setelah Sambung dibuka ulang.")
+							.font(.footnote)
+							.foregroundStyle(.secondary)
+					}
+				} icon: {
+					Image(systemName: "globe")
+				}
+				.labelStyle(SambungSettingsLabelStyle())
 			}
 		}
 	}

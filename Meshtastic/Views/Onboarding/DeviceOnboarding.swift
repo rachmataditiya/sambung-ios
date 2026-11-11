@@ -55,8 +55,8 @@ struct DeviceOnboarding: View {
 
 	var welcomeView: some View {
 		OnboardingPage(
-			title: String(localized: "Welcome to Meshtastic"),
-			footer: String(localized: "Meshtastic does not collect any personal information. We do anonymously collect usage and crash data to improve the app."),
+			title: String(localized: "Welcome to Sambung"),
+			footer: String(localized: "Sambung does not collect any personal information and sends no usage or crash data."),
 			buttonTitle: String(localized: "Get started"),
 			action: { await goToNextStep(after: .welcome) }
 		) {
@@ -191,7 +191,7 @@ struct DeviceOnboarding: View {
 				symbol: "network",
 				color: .green,
 				title: "Network-based Nodes".localized,
-				text: "The Meshtastic App can connect to and manage network-enabled nodes.".localized
+				text: "Sambung can connect to and manage network-enabled nodes.".localized
 			)
 			OnboardingFeatureRow(
 				symbol: "person.and.background.dotted",
@@ -373,7 +373,7 @@ extension DeviceOnboarding {
 	}
 
 	func createNotificationsString() -> AttributedString {
-		linkingSettings(AttributedString(localized: "Allow Meshtastic to send you notifications for messages, node events, and critical alerts. You can update notification permissions at any time from settings."))
+		linkingSettings(AttributedString(localized: "Allow Sambung to send you notifications for messages, node events, and critical alerts. You can update notification permissions at any time from settings."))
 	}
 
 	func createLocationString() -> AttributedString {
@@ -381,11 +381,11 @@ extension DeviceOnboarding {
 	}
 
 	func createLocalNetworkString() -> AttributedString {
-		linkingSettings(AttributedString(localized: "Meshtastic accesses your local network to connect to TCP-based accessories.  You can update the local network permissions at any time from settings."))
+		linkingSettings(AttributedString(localized: "Sambung accesses your local network to connect to TCP-based accessories.  You can update the local network permissions at any time from settings."))
 	}
 
 	func createBluetoothString() -> AttributedString {
-		linkingSettings(AttributedString(localized: "Meshtastic uses Bluetooth to connect to BLE-based accessories.  You can update the permissions at any time from settings."))
+		linkingSettings(AttributedString(localized: "Sambung uses Bluetooth to connect to BLE-based accessories.  You can update the permissions at any time from settings."))
 	}
 
 	func createSiriString() -> AttributedString {

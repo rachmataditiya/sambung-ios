@@ -299,3 +299,43 @@ struct SambungVoiceCodecTests {
 		#expect(wav[40] == 6) // data chunk length, little-endian
 	}
 }
+
+@Suite("Sambung contacts", .serialized)
+struct SambungContactsTests {
+	// Node numbers no real node uses, cleared again after each test.
+	private let saved: Int64 = 0x7FFF_0001
+	private let unsaved: Int64 = 0x7FFF_0002
+
+	@Test func aNodeWithALocalNameIsAContact() {
+		NodeDisplayNameStore.setDisplayName("Bu Sari", for: saved)
+		defer { NodeDisplayNameStore.setDisplayName(nil, for: saved) }
+		#expect(SambungContacts.isContact(saved))
+		#expect(!SambungContacts.isContact(unsaved))
+	}
+
+	@Test func clearingTheNameRemovesTheContact() {
+		NodeDisplayNameStore.setDisplayName("Bu Sari", for: saved)
+		NodeDisplayNameStore.setDisplayName("  ", for: saved)
+		#expect(!SambungContacts.isContact(saved))
+	}
+
+	@Test func contactsComeFirstAndKeepTheirOrder() {
+		NodeDisplayNameStore.setDisplayName("Bu Sari", for: saved)
+		defer { NodeDisplayNameStore.setDisplayName(nil, for: saved) }
+		let (contacts, others) = SambungContacts.split([unsaved, saved, 3, 4]) { $0 }
+		#expect(contacts == [saved])
+		#expect(others == [unsaved, 3, 4])
+	}
+}
+
+@Suite("Sambung shell")
+struct SambungShellTests {
+	@Test func everyRouterTabHasAHome() {
+		#expect(SambungShell.Section(.messages) == .chat)
+		#expect(SambungShell.Section(.nodes) == .network)
+		#expect(SambungShell.Section(.map) == .map)
+		// Settings and the connection screen share the Perangkat tab.
+		#expect(SambungShell.Section(.settings) == .device)
+		#expect(SambungShell.Section(.connect) == .device)
+	}
+}

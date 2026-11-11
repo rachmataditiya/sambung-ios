@@ -30,7 +30,8 @@ struct SaveConfigButton: View {
 				}
 				.padding(.bottom)
 				.controlSize(.large)
-				.buttonStyle(.borderedProminent)
+				// Sambung: it floats over the form, so it is glass.
+				.buttonStyle(.glassProminent)
 				.tint(.accentFill)
 				.hostedConfirmation(
 					"Are you sure?",

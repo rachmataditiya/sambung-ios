@@ -31,7 +31,8 @@ struct AppSettings: View {
 	@AppStorage(NodeListPreferences.shouldShowChannel.rawValue) private var shouldShowChannel = true
 	@AppStorage(NodeListPreferences.shouldShowHops.rawValue) private var shouldShowHops = true
 	@AppStorage(NodeListPreferences.shouldShowSignal.rawValue) private var shouldShowSignal = true
-	@AppStorage("participateInDistributedTranslations") private var participateInDistributedTranslations = true
+	// Sambung: off unless switched on; it uploads translated help pages to the Meshtastic project.
+	@AppStorage("participateInDistributedTranslations") private var participateInDistributedTranslations = false
 
 	let autoconnectBinding = Binding<Bool>(get: {
 		return UserDefaults.autoconnectOnDiscovery
@@ -54,12 +55,15 @@ struct AppSettings: View {
 					Text("PKI based node administration, requires firmware version 2.5+")
 						.foregroundStyle(.secondary)
 						.font(.caption)
-					Toggle(isOn: $usageDataAndCrashReporting) {
-						Label("Usage and Crash Data", systemImage: "pencil.and.list.clipboard")
+					// Sambung never starts upstream's telemetry, so the switch for it is not offered.
+					if SambungConfig.upstreamTelemetryEnabled {
+						Toggle(isOn: $usageDataAndCrashReporting) {
+							Label("Usage and Crash Data", systemImage: "pencil.and.list.clipboard")
+						}
+						Text("Provide anonymous usage statistics and crash reports.")
+							.foregroundStyle(.secondary)
+							.font(.caption)
 					}
-					Text("Provide anonymous usage statistics and crash reports.")
-						.foregroundStyle(.secondary)
-						.font(.caption)
 					if showAutoConnect {
 						Toggle(isOn: autoconnectBinding) {
 							Label("Automatically Connect", systemImage: "app.connected.to.app.below.fill")

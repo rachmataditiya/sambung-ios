@@ -52,7 +52,12 @@ extension View {
 			.buttonBorderShape(.capsule)
 			.controlSize(.large)
 			.padding(.horizontal)
+			// Sambung: the onboarding's main button sits under the scrolling page, so it is glass.
+			#if os(visionOS)
 			.buttonStyle(.borderedProminent)
+			#else
+			.buttonStyle(.glassProminent)
+			#endif
 			.tint(.accentFill)
 	}
 
