@@ -13,14 +13,16 @@ import SwiftData
 final class SambungTransfer {
 	static let shared = SambungTransfer()
 
-	/// Time between packets on a channel, where nobody acknowledges. One full packet is about
-	/// two seconds on air with LongFast, and the radio's send queue is short.
+	/// The time the radio needs to put one full packet on air with LongFast, its own wait
+	/// before sending included.
 	/// shortcut: fixed for LongFast; derive it from the modem preset when other presets matter.
-	static let packetInterval: Duration = .seconds(4)
-	/// A direct packet waits this long for the radio to say it was received or given up on.
-	/// The radio tries three times, several seconds apart; sending the next packet meanwhile
-	/// only collides with those tries and with the acknowledgements coming back.
-	static let ackTimeout: Duration = .seconds(30)
+	static let packetAirtime: Duration = .seconds(3)
+	/// Packets handed to the radio in one go. Its queue takes them and sends them one after
+	/// another, so a transfer keeps moving for that long even while the app is in the
+	/// background and cannot run its own clock.
+	static let burstSize = 6
+	/// How long the file waits for the text message before it to be acknowledged.
+	static let textAckTimeout: Duration = .seconds(10)
 	/// Silence after which a receiver asks for what it still lacks.
 	static let quietBeforeRequest: TimeInterval = 20
 	/// Requests in a row that brought nothing before a transfer is given up.
@@ -53,7 +55,7 @@ final class SambungTransfer {
 		let first = SambungTransferWire.maxPacketSize - SambungTransferWire.manifestHeaderSize
 		let rest = SambungTransferWire.maxPacketSize - SambungTransferWire.chunkHeaderSize
 		let packets = count <= first ? 1 : 1 + (count - first + rest - 1) / rest
-		return packets * 4
+		return packets * 3
 	}
 
 	private struct Incoming {
@@ -65,9 +67,19 @@ final class SambungTransfer {
 		var finished = false
 	}
 
+	/// Debug builds print each step, so a transfer can be followed from a console attached to the phone.
+	private func trace(_ text: @autoclosure () -> String) {
+		#if DEBUG
+		print("[sambung-transfer] \(Date().formatted(date: .omitted, time: .standard)) \(text())")
+		#endif
+	}
+
 	private var incoming: [String: Incoming] = [:]
-	/// Transfers whose packets are going out right now, so a request does not start a second run.
-	private var sending: Set<UInt16> = []
+	/// Per transfer, the packets still to hand to the radio. A request from the receiver
+	/// replaces the list: from then on the receiver knows best what is missing.
+	private var pending: [UInt16: [Int]] = [:]
+	/// Transfers with a pump running, so a request feeds that one instead of starting a second.
+	private var pumping: Set<UInt16> = []
 	private var ackWaiters: [UInt32: CheckedContinuation<Void, Never>] = [:]
 	private var watchdog: Task<Void, Never>?
 	private let store = SambungMediaStore.shared
@@ -94,11 +106,13 @@ final class SambungTransfer {
 		store.store(file, for: key, record: record)
 		store.update(key) { $0.received = 0 }
 
+		trace("send \(id): \(packets.count) packets, text message \(wireMessageID)")
 		// The text message has to be through before the file starts, or the two collide.
 		if destination.userNum > 0 { await waitForAck(of: wireMessageID) }
+		pending[id] = Array(packets.indices)
 		do {
-			try await deliver(packets, indexes: Array(packets.indices), id: id, toUserNum: destination.userNum, channel: destination.channelNum, accessoryManager: accessoryManager) { sentCount in
-				self.store.update(key) { $0.received = sentCount }
+			try await pump(id, packets: packets, toUserNum: destination.userNum, channel: destination.channelNum, accessoryManager: accessoryManager) { left in
+				self.store.update(key) { $0.received = max($0.received, packets.count - left) }
 			}
 		} catch {
 			// The bubble must not sit on "sending" for ever.
@@ -108,21 +122,25 @@ final class SambungTransfer {
 		}
 	}
 
-	/// Sends the packets at [indexes] one at a time. A direct packet waits for the radio's word
-	/// on the one before; that also keeps a transfer moving while the app is in the background,
-	/// where each acknowledgement wakes it for a moment.
-	private func deliver(_ packets: [SambungTransferWire.Packet], indexes: [Int], id: UInt16, toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager, progress: (Int) -> Void = { _ in }) async throws {
-		sending.insert(id)
-		defer { sending.remove(id) }
-		for (position, index) in indexes.enumerated() where packets.indices.contains(index) {
-			let packetID = try await sendRaw(SambungTransferWire.encode(packets[index]), toUserNum: toUserNum, channel: channel, accessoryManager: accessoryManager)
-			progress(position + 1)
-			guard position < indexes.count - 1 else { break }
-			if toUserNum > 0 {
-				await waitForAck(of: packetID)
-			} else {
-				try await Task.sleep(for: Self.packetInterval)
+	/// Hands the pending packets of one transfer to the radio, a burst at a time, and waits out
+	/// each burst's time on air. The packets ask for no radio acknowledgement: the radio sends
+	/// one only once for anything but a text message, it is easily lost, and the three retries
+	/// that follow take half a minute and collide with the packets behind them. What does not
+	/// arrive is asked for again by the receiver instead.
+	private func pump(_ id: UInt16, packets: [SambungTransferWire.Packet], toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager, progress: (Int) -> Void = { _ in }) async throws {
+		guard pumping.insert(id).inserted else { return }
+		defer {
+			pumping.remove(id)
+			pending[id] = nil
+		}
+		while let burst = pending[id].map({ Array($0.prefix(Self.burstSize)) }), !burst.isEmpty {
+			pending[id]?.removeFirst(burst.count)
+			for index in burst where packets.indices.contains(index) {
+				let packetID = try await sendRaw(SambungTransferWire.encode(packets[index]), toUserNum: toUserNum, channel: channel, wantAck: false, accessoryManager: accessoryManager)
+				trace("transfer \(id): sent index \(index) as packet \(packetID)")
 			}
+			progress(pending[id]?.count ?? 0)
+			try await Task.sleep(for: Self.packetAirtime * burst.count)
 		}
 	}
 
@@ -131,15 +149,20 @@ final class SambungTransfer {
 		await withCheckedContinuation { continuation in
 			ackWaiters[packetID] = continuation
 			Task {
-				try? await Task.sleep(for: Self.ackTimeout)
-				self.ackWaiters.removeValue(forKey: packetID)?.resume()
+				try? await Task.sleep(for: Self.textAckTimeout)
+				guard let waiter = self.ackWaiters.removeValue(forKey: packetID) else { return }
+				self.trace("no word on packet \(packetID) after the timeout")
+				waiter.resume()
 			}
 		}
 	}
 
 	/// Called for every routing packet: an acknowledgement or a failure for something we sent.
 	func acknowledged(_ meshPacket: MeshPacket) {
-		ackWaiters.removeValue(forKey: meshPacket.decoded.requestID)?.resume()
+		let waiter = ackWaiters.removeValue(forKey: meshPacket.decoded.requestID)
+		let reason = (try? Routing(serializedBytes: meshPacket.decoded.payload))?.errorReason
+		trace("routing reply for \(meshPacket.decoded.requestID) from \(meshPacket.from): \(reason.map { "\($0)" } ?? "?")\(waiter == nil ? "" : ", was waited for")")
+		waiter?.resume()
 	}
 
 	private func latestOutgoingMessageID(from me: Int64, payload: String) -> Int64? {
@@ -153,7 +176,7 @@ final class SambungTransfer {
 
 	/// Returns the packet id, which is what the radio's acknowledgement will name.
 	@discardableResult
-	private func sendRaw(_ payload: Data, toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager) async throws -> UInt32 {
+	private func sendRaw(_ payload: Data, toUserNum: Int64, channel: Int32, wantAck: Bool, accessoryManager: AccessoryManager) async throws -> UInt32 {
 		guard let me = accessoryManager.activeDeviceNum else { throw TransferError.notConnected }
 		var data = DataMessage()
 		data.payload = payload
@@ -175,8 +198,7 @@ final class SambungTransfer {
 		}
 		packet.channel = UInt32(max(0, channel))
 		packet.decoded = data
-		// Direct chunks ask for the radio-level ack, which makes the firmware retransmit them.
-		packet.wantAck = toUserNum > 0
+		packet.wantAck = wantAck && toUserNum > 0
 
 		var toRadio = ToRadio()
 		toRadio.packet = packet
@@ -200,6 +222,7 @@ final class SambungTransfer {
 		case let .chunk(id, _, _):
 			receive(packet, id: id, from: from, meshPacket: meshPacket, me: me, accessoryManager: accessoryManager)
 		case let .request(id, missing):
+			trace("request for \(id): \(missing), pump running: \(pumping.contains(id)), known: \(store.sent(id: id, to: from) != nil)")
 			resend(id: id, missing: missing, requestedBy: from, accessoryManager: accessoryManager)
 		case let .complete(id):
 			if let sent = store.sent(id: id, to: from) {
@@ -243,18 +266,19 @@ final class SambungTransfer {
 	/// Answers a request for missing packets. The packets are built again from the file on
 	/// disk, so this works for a transfer started before the app was last closed.
 	private func resend(id: UInt16, missing: [UInt8], requestedBy from: Int64, accessoryManager: AccessoryManager) {
-		// While the first run is still going, what is missing is mostly what has not been sent yet.
-		guard !sending.contains(id),
-			  let sent = store.sent(id: id, to: from), let info = sent.record.sent,
+		guard let sent = store.sent(id: id, to: from), let info = sent.record.sent else { return }
+		pending[id] = missing.map(Int.init)
+		// A pump that is already running, or waiting out a burst, takes the new list from here.
+		guard !pumping.contains(id),
 			  let url = store.url(for: sent.record), let file = try? Data(contentsOf: url),
 			  let packets = try? SambungTransferWire.packets(for: file, id: id, kind: sent.record.kind, codec: sent.record.codec, messageID: info.messageID) else { return }
 		Task {
-			try? await deliver(packets, indexes: missing.map(Int.init), id: id, toUserNum: info.toUserNum, channel: info.channel, accessoryManager: accessoryManager)
+			try? await pump(id, packets: packets, toUserNum: info.toUserNum, channel: info.channel, accessoryManager: accessoryManager)
 		}
 	}
 
 	private func reply(_ packet: SambungTransferWire.Packet, to nodeNum: Int64, accessoryManager: AccessoryManager) {
-		Task { try? await sendRaw(SambungTransferWire.encode(packet), toUserNum: nodeNum, channel: 0, accessoryManager: accessoryManager) }
+		Task { try? await sendRaw(SambungTransferWire.encode(packet), toUserNum: nodeNum, channel: 0, wantAck: true, accessoryManager: accessoryManager) }
 	}
 
 	/// Asks the sender for missing chunks once a direct transfer has gone quiet, and gives up
