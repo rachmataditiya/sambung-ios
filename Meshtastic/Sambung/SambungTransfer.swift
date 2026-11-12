@@ -16,7 +16,7 @@ final class SambungTransfer {
 	/// The time the radio needs to put one full packet on air with LongFast, its own wait
 	/// before sending included.
 	/// shortcut: fixed for LongFast; derive it from the modem preset when other presets matter.
-	static let packetAirtime: Duration = .seconds(3)
+	static let packetAirtime: Duration = .milliseconds(1500)
 	/// Packets handed to the radio in one go. Its queue takes them and sends them one after
 	/// another, so a transfer keeps moving for that long even while the app is in the
 	/// background and cannot run its own clock.
@@ -55,7 +55,7 @@ final class SambungTransfer {
 		let first = SambungTransferWire.maxPacketSize - SambungTransferWire.manifestHeaderSize
 		let rest = SambungTransferWire.maxPacketSize - SambungTransferWire.chunkHeaderSize
 		let packets = count <= first ? 1 : 1 + (count - first + rest - 1) / rest
-		return packets * 3
+		return packets * 3 / 2
 	}
 
 	private struct Incoming {

@@ -168,7 +168,7 @@ struct SambungTransferWireTests {
 		try SambungTransferWire.packets(for: file(count), id: 0xBEEF, kind: .image, codec: 1, messageID: 0xDEADBEEF)
 	}
 
-	@Test("A file survives being cut, encoded, shuffled, duplicated and reassembled", arguments: [1, 183, 184, 1000, 4668])
+	@Test("A file survives being cut, encoded, shuffled, duplicated and reassembled", arguments: [1, 73, 74, 1000, 4748])
 	func roundTrip(count: Int) throws {
 		let sent = try packets(count)
 		var assembler = SambungTransferWire.Assembler()
@@ -184,16 +184,16 @@ struct SambungTransferWireTests {
 
 	@Test("Packet counts at the size boundaries")
 	func chunking() throws {
-		#expect(try packets(183).count == 1)
-		#expect(try packets(184).count == 2)
-		#expect(try packets(4668).count == SambungTransferWire.maxChunks)
-		#expect(throws: SambungTransferWire.WireError.self) { try packets(4669) }
+		#expect(try packets(73).count == 1)
+		#expect(try packets(74).count == 2)
+		#expect(try packets(4748).count == SambungTransferWire.maxChunks)
+		#expect(throws: SambungTransferWire.WireError.self) { try packets(4749) }
 		#expect(throws: SambungTransferWire.WireError.self) { try packets(0) }
 	}
 
 	@Test("Lost chunks are named, and the file is withheld until they arrive")
 	func missingChunks() throws {
-		let sent = try packets(1000)
+		let sent = try packets(498) // six packets
 		var assembler = SambungTransferWire.Assembler()
 		assembler.add(sent[2])
 		#expect(assembler.missing == [0]) // no manifest yet: only it can be asked for
@@ -203,7 +203,7 @@ struct SambungTransferWireTests {
 		#expect(assembler.file() == nil)
 		#expect(!assembler.isCorrupt)
 		for index in [1, 3, 5] { assembler.add(sent[index]) }
-		#expect(assembler.file() == file(1000))
+		#expect(assembler.file() == file(498))
 	}
 
 	@Test("A damaged chunk fails the checksum instead of producing a broken file")
@@ -308,7 +308,7 @@ struct SambungVoiceCodecTests {
 		#expect(clip.count == 1000)
 		#expect(SambungVoiceCodec.seconds(forByteCount: clip.count) == 10)
 		let packets = try SambungTransferWire.packets(for: clip, id: 9, kind: .voice, codec: SambungVoiceCodec.codec2Mode700C, messageID: 1)
-		#expect(packets.count == 6)
+		#expect(packets.count == 12)
 	}
 
 	@Test("A partial last frame is padded, and decoding returns whole frames of sound")

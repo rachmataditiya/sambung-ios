@@ -22,13 +22,16 @@ import zlib
 
 enum SambungTransferWire {
 	static let magic: UInt8 = 0x53
-	/// A Meshtastic data payload holds 233 bytes; direct messages lose a few to their own
-	/// encryption header. 200 leaves room for both.
-	static let maxPacketSize = 200
+	/// One packet stays about 1.2 seconds on air with LongFast. Longer ones arrive broken
+	/// from boards without a temperature-steady oscillator: the frequency slides while the
+	/// radio transmits, and a two-second packet outlasts what the receiver can follow (seen
+	/// as CRC errors on the receiving radio, November 2026). A Meshtastic payload could hold
+	/// 233 bytes; this is deliberately far below that.
+	static let maxPacketSize = 90
 	static let manifestHeaderSize = 17
 	static let chunkHeaderSize = 5
-	/// Policy, not format: about a minute and a half of airtime on LongFast.
-	static let maxChunks = 24
+	/// Policy, not format: about a minute of airtime on LongFast, and room for the largest photo.
+	static let maxChunks = 56
 
 	enum Kind: UInt8, Codable { case image = 1, voice = 2 }
 
