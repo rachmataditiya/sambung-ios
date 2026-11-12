@@ -9,6 +9,13 @@
 import Foundation
 import OSLog
 
+struct SambungSentTransfer: Codable, Equatable {
+	var id: UInt16
+	var messageID: UInt32
+	var toUserNum: Int64
+	var channel: Int32
+}
+
 struct SambungMediaRecord: Codable, Equatable {
 	var kind: SambungTransferWire.Kind
 	var codec: UInt8
@@ -20,6 +27,9 @@ struct SambungMediaRecord: Codable, Equatable {
 	var failed = false
 	/// Outgoing only: the recipient confirmed it has the whole file.
 	var delivered = false
+	/// Outgoing only: what it takes to build the packets again, so a request for missing ones
+	/// can still be answered after the app was closed.
+	var sent: SambungSentTransfer?
 
 	var isComplete: Bool { fileName != nil }
 }
@@ -48,6 +58,11 @@ final class SambungMediaStore: ObservableObject {
 	func record(from nodeNum: Int64?, messageID: Int64) -> SambungMediaRecord? {
 		guard let nodeNum else { return nil }
 		return records[Self.key(from: nodeNum, messageID: messageID)]
+	}
+
+	/// The transfer this phone sent under [id] to [toUserNum], with the key of its record.
+	func sent(id: UInt16, to toUserNum: Int64) -> (key: String, record: SambungMediaRecord)? {
+		records.first { $0.value.sent?.id == id && $0.value.sent?.toUserNum == toUserNum }.map { ($0.key, $0.value) }
 	}
 
 	func url(for record: SambungMediaRecord) -> URL? {

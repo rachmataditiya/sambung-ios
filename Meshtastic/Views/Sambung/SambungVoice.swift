@@ -261,15 +261,21 @@ struct SambungTalkStrip: View {
 	}
 }
 
-/// Plays a voice clip the moment it arrives for the conversation on screen, like a handheld
-/// radio; other clips wait for their play button.
+/// The one voice clip that is playing, if any. A clip that arrives for the conversation on
+/// screen plays at once, like a handheld radio; other clips wait for their play button. Every
+/// bubble watches this, so the clip being heard is the one that shows it.
 @MainActor
-final class SambungVoicePlayback {
+final class SambungVoicePlayback: ObservableObject {
 	static let shared = SambungVoicePlayback()
 
 	/// The conversation on screen.
 	var open: SambungRoute?
+	/// The file name of the clip being played.
+	@Published private(set) var playing: String?
+	/// How far through it is, 0 to 1.
+	@Published private(set) var progress = 0.0
 	private var player: AVAudioPlayer?
+	private var ticker: Timer?
 
 	nonisolated static func shouldPlay(open: SambungRoute?, from: Int64, isDirect: Bool, channel: UInt32) -> Bool {
 		switch open {
@@ -279,22 +285,50 @@ final class SambungVoicePlayback {
 		}
 	}
 
-	func arrived(_ clip: Data, from: Int64, isDirect: Bool, channel: UInt32) {
+	func arrived(_ clip: Data, name: String, from: Int64, isDirect: Bool, channel: UInt32) {
 		guard Self.shouldPlay(open: open, from: from, isDirect: isDirect, channel: channel) else { return }
+		play(clip, name: name)
+	}
+
+	func toggle(_ clip: Data, name: String) {
+		if playing == name { stop() } else { play(clip, name: name) }
+	}
+
+	func play(_ clip: Data, name: String) {
+		stop()
 		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
 		try? AVAudioSession.sharedInstance().setActive(true)
-		player = try? AVAudioPlayer(data: SambungVoiceCodec.wav(SambungVoiceCodec.decode(clip)))
-		player?.play()
+		guard let player = try? AVAudioPlayer(data: SambungVoiceCodec.wav(SambungVoiceCodec.decode(clip))), player.play() else { return }
+		self.player = player
+		playing = name
+		ticker = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+			Task { @MainActor in self?.tick() }
+		}
+	}
+
+	func stop() {
+		ticker?.invalidate()
+		ticker = nil
+		player?.stop()
+		player = nil
+		playing = nil
+		progress = 0
+	}
+
+	private func tick() {
+		guard let player, player.isPlaying else { return stop() }
+		progress = player.duration > 0 ? player.currentTime / player.duration : 0
 	}
 }
 
-/// A received or sent voice clip: play button and length.
+/// A received or sent voice clip: play button, a bar that fills while it plays, and its length.
 struct SambungVoicePlayer: View {
 	let url: URL
 	let tint: Color
-	@State private var player: AVAudioPlayer?
-	@State private var isPlaying = false
+	@ObservedObject private var playback = SambungVoicePlayback.shared
 
+	private var name: String { url.lastPathComponent }
+	private var isPlaying: Bool { playback.playing == name }
 	private var seconds: Double {
 		let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
 		return SambungVoiceCodec.seconds(forByteCount: size)
@@ -305,10 +339,18 @@ struct SambungVoicePlayer: View {
 			HStack(spacing: 10) {
 				Image(systemName: isPlaying ? "stop.circle.fill" : "play.circle.fill")
 					.font(.system(size: 34))
-				VStack(alignment: .leading, spacing: 1) {
-					Text("Pesan suara").font(.subheadline.weight(.semibold))
-					Text(verbatim: SambungVoiceCodec.durationText(seconds)).font(.footnote).monospacedDigit().opacity(0.8)
+					.contentTransition(.symbolEffect(.replace))
+				VStack(alignment: .leading, spacing: 5) {
+					ProgressView(value: isPlaying ? playback.progress : 0)
+						.tint(tint)
+					HStack {
+						Text("Pesan suara").font(.footnote.weight(.semibold))
+						Spacer(minLength: 8)
+						Text(verbatim: SambungVoiceCodec.durationText(isPlaying ? playback.progress * seconds : seconds))
+							.font(.footnote).monospacedDigit().opacity(0.8)
+					}
 				}
+				.frame(width: 150)
 			}
 			.foregroundStyle(tint)
 		}
@@ -317,20 +359,7 @@ struct SambungVoicePlayer: View {
 	}
 
 	private func toggle() {
-		if isPlaying {
-			player?.stop()
-			isPlaying = false
-			return
-		}
 		guard let clip = try? Data(contentsOf: url) else { return }
-		let samples = SambungVoiceCodec.decode(clip)
-		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-		player = try? AVAudioPlayer(data: SambungVoiceCodec.wav(samples))
-		guard let player, player.play() else { return }
-		isPlaying = true
-		Task {
-			try? await Task.sleep(for: .seconds(player.duration + 0.1))
-			isPlaying = false
-		}
+		playback.toggle(clip, name: name)
 	}
 }

@@ -177359,6 +177359,38 @@
           }
         }
       }
+    },
+    "Simpan atau bagikan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save or share"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simpan atau bagikan"
+          }
+        }
+      }
+    },
+    "Buka foto" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open photo"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka foto"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

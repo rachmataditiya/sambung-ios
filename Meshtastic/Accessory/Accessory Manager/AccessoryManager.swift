@@ -1110,6 +1110,8 @@ class AccessoryManager: ObservableObject, MqttClientProxyManagerDelegate {
 					}
 					RemoteShellSession.deliverRouting(packet)
 					TelemetryRequestTracker.shared.deliverRouting(packet)
+					// Sambung: a file transfer sends its next packet when this one is accounted for.
+					SambungTransfer.shared.acknowledged(packet)
 					await MeshPackets.shared.routingPacket(packet: packet, connectedNodeNum: deviceNum)
 				case .adminApp:
 					await MeshPackets.shared.adminAppPacket(packet: packet, connectedNodeNum: self.activeDeviceNum)

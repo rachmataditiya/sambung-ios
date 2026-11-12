@@ -13,13 +13,18 @@ import SwiftData
 final class SambungTransfer {
 	static let shared = SambungTransfer()
 
-	/// Time between packets. One full packet is about two seconds on air with LongFast, and the
-	/// radio's send queue is short, so packets are fed to it no faster than it can transmit.
+	/// Time between packets on a channel, where nobody acknowledges. One full packet is about
+	/// two seconds on air with LongFast, and the radio's send queue is short.
 	/// shortcut: fixed for LongFast; derive it from the modem preset when other presets matter.
 	static let packetInterval: Duration = .seconds(4)
+	/// A direct packet waits this long for the radio to say it was received or given up on.
+	/// The radio tries three times, several seconds apart; sending the next packet meanwhile
+	/// only collides with those tries and with the acknowledgements coming back.
+	static let ackTimeout: Duration = .seconds(30)
 	/// Silence after which a receiver asks for what it still lacks.
 	static let quietBeforeRequest: TimeInterval = 20
-	static let maxRequestRounds = 3
+	/// Requests in a row that brought nothing before a transfer is given up.
+	static let maxRequestRounds = 4
 
 	static var imagePlaceholder: String { sambungText("🖼️ Foto") }
 
@@ -60,15 +65,10 @@ final class SambungTransfer {
 		var finished = false
 	}
 
-	private struct Outgoing {
-		var packets: [SambungTransferWire.Packet]
-		var toUserNum: Int64
-		var channel: Int32
-		var recordKey: String
-	}
-
 	private var incoming: [String: Incoming] = [:]
-	private var outgoing: [UInt16: Outgoing] = [:]
+	/// Transfers whose packets are going out right now, so a request does not start a second run.
+	private var sending: Set<UInt16> = []
+	private var ackWaiters: [UInt32: CheckedContinuation<Void, Never>] = [:]
 	private var watchdog: Task<Void, Never>?
 	private let store = SambungMediaStore.shared
 
@@ -84,20 +84,21 @@ final class SambungTransfer {
 		guard let messageID = latestOutgoingMessageID(from: me, payload: placeholder) else { throw TransferError.messageNotFound }
 
 		let id = UInt16.random(in: 1...UInt16.max)
-		let packets = try SambungTransferWire.packets(for: file, id: id, kind: kind, codec: codec, messageID: UInt32(truncatingIfNeeded: messageID))
+		let wireMessageID = UInt32(truncatingIfNeeded: messageID)
+		let packets = try SambungTransferWire.packets(for: file, id: id, kind: kind, codec: codec, messageID: wireMessageID)
 		let key = SambungMediaStore.key(from: me, messageID: messageID)
-		let record = SambungMediaRecord(kind: kind, codec: codec, fileName: nil, received: 0, total: packets.count, isOutgoing: true)
+		var record = SambungMediaRecord(kind: kind, codec: codec, fileName: nil, received: 0, total: packets.count, isOutgoing: true)
+		record.sent = SambungSentTransfer(id: id, messageID: wireMessageID, toUserNum: destination.userNum, channel: destination.channelNum)
 		// The sender keeps the file too, so its own bubble shows it; "received" then counts
 		// packets sent.
 		store.store(file, for: key, record: record)
 		store.update(key) { $0.received = 0 }
-		outgoing[id] = Outgoing(packets: packets, toUserNum: destination.userNum, channel: destination.channelNum, recordKey: key)
 
+		// The text message has to be through before the file starts, or the two collide.
+		if destination.userNum > 0 { await waitForAck(of: wireMessageID) }
 		do {
-			for (index, packet) in packets.enumerated() {
-				try await sendRaw(SambungTransferWire.encode(packet), toUserNum: destination.userNum, channel: destination.channelNum, accessoryManager: accessoryManager)
-				store.update(key) { $0.received = index + 1 }
-				if index < packets.count - 1 { try await Task.sleep(for: Self.packetInterval) }
+			try await deliver(packets, indexes: Array(packets.indices), id: id, toUserNum: destination.userNum, channel: destination.channelNum, accessoryManager: accessoryManager) { sentCount in
+				self.store.update(key) { $0.received = sentCount }
 			}
 		} catch {
 			// The bubble must not sit on "sending" for ever.
@@ -105,6 +106,40 @@ final class SambungTransfer {
 			Logger.mesh.error("Sambung transfer \(id, privacy: .public) stopped: \(error.localizedDescription, privacy: .public)")
 			throw error
 		}
+	}
+
+	/// Sends the packets at [indexes] one at a time. A direct packet waits for the radio's word
+	/// on the one before; that also keeps a transfer moving while the app is in the background,
+	/// where each acknowledgement wakes it for a moment.
+	private func deliver(_ packets: [SambungTransferWire.Packet], indexes: [Int], id: UInt16, toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager, progress: (Int) -> Void = { _ in }) async throws {
+		sending.insert(id)
+		defer { sending.remove(id) }
+		for (position, index) in indexes.enumerated() where packets.indices.contains(index) {
+			let packetID = try await sendRaw(SambungTransferWire.encode(packets[index]), toUserNum: toUserNum, channel: channel, accessoryManager: accessoryManager)
+			progress(position + 1)
+			guard position < indexes.count - 1 else { break }
+			if toUserNum > 0 {
+				await waitForAck(of: packetID)
+			} else {
+				try await Task.sleep(for: Self.packetInterval)
+			}
+		}
+	}
+
+	/// Returns once the radio reports on [packetID], acknowledged or given up, or after the timeout.
+	private func waitForAck(of packetID: UInt32) async {
+		await withCheckedContinuation { continuation in
+			ackWaiters[packetID] = continuation
+			Task {
+				try? await Task.sleep(for: Self.ackTimeout)
+				self.ackWaiters.removeValue(forKey: packetID)?.resume()
+			}
+		}
+	}
+
+	/// Called for every routing packet: an acknowledgement or a failure for something we sent.
+	func acknowledged(_ meshPacket: MeshPacket) {
+		ackWaiters.removeValue(forKey: meshPacket.decoded.requestID)?.resume()
 	}
 
 	private func latestOutgoingMessageID(from me: Int64, payload: String) -> Int64? {
@@ -116,13 +151,16 @@ final class SambungTransfer {
 		return (try? PersistenceController.shared.context.fetch(descriptor))?.first?.messageId
 	}
 
-	private func sendRaw(_ payload: Data, toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager) async throws {
+	/// Returns the packet id, which is what the radio's acknowledgement will name.
+	@discardableResult
+	private func sendRaw(_ payload: Data, toUserNum: Int64, channel: Int32, accessoryManager: AccessoryManager) async throws -> UInt32 {
 		guard let me = accessoryManager.activeDeviceNum else { throw TransferError.notConnected }
 		var data = DataMessage()
 		data.payload = payload
 		data.portnum = .privateApp
 
 		var packet = MeshPacket()
+		packet.id = UInt32.random(in: UInt32(UInt8.max)..<UInt32.max)
 		packet.from = UInt32(truncatingIfNeeded: me)
 		if toUserNum > 0 {
 			packet.to = UInt32(truncatingIfNeeded: toUserNum)
@@ -143,6 +181,7 @@ final class SambungTransfer {
 		var toRadio = ToRadio()
 		toRadio.packet = packet
 		try await accessoryManager.send(toRadio, debugDescription: "Sambung transfer packet, \(payload.count) bytes")
+		return packet.id
 	}
 
 	// MARK: - Receiving
@@ -163,9 +202,8 @@ final class SambungTransfer {
 		case let .request(id, missing):
 			resend(id: id, missing: missing, requestedBy: from, accessoryManager: accessoryManager)
 		case let .complete(id):
-			if let sent = outgoing[id], sent.toUserNum == from {
-				store.update(sent.recordKey) { $0.delivered = true }
-				outgoing[id] = nil
+			if let sent = store.sent(id: id, to: from) {
+				store.update(sent.key) { $0.delivered = true }
 			}
 		}
 	}
@@ -174,8 +212,11 @@ final class SambungTransfer {
 		let transferKey = "\(from)-\(id)"
 		var entry = incoming[transferKey] ?? Incoming(isDirect: Int64(meshPacket.to) == me, channel: meshPacket.channel)
 		guard !entry.finished else { return }
+		let before = entry.assembler.receivedCount
 		entry.assembler.add(packet)
 		entry.lastActivity = Date()
+		// Only requests that bring nothing count towards giving up.
+		if entry.assembler.receivedCount > before { entry.requestRounds = 0 }
 
 		if let manifest = entry.assembler.manifest {
 			let recordKey = SambungMediaStore.key(from: from, messageID: Int64(manifest.messageID))
@@ -185,7 +226,7 @@ final class SambungTransfer {
 				entry.finished = true
 				// Push to talk: a clip for the conversation on screen is heard as it lands.
 				if manifest.kind == .voice {
-					SambungVoicePlayback.shared.arrived(file, from: from, isDirect: entry.isDirect, channel: entry.channel)
+					SambungVoicePlayback.shared.arrived(file, name: "\(recordKey).voice", from: from, isDirect: entry.isDirect, channel: entry.channel)
 				}
 				if entry.isDirect { reply(.complete(id: id), to: from, accessoryManager: accessoryManager) }
 				NotificationCenter.default.post(name: .meshMessagesDidChange, object: nil)
@@ -199,14 +240,16 @@ final class SambungTransfer {
 		startWatchdog(accessoryManager: accessoryManager)
 	}
 
+	/// Answers a request for missing packets. The packets are built again from the file on
+	/// disk, so this works for a transfer started before the app was last closed.
 	private func resend(id: UInt16, missing: [UInt8], requestedBy from: Int64, accessoryManager: AccessoryManager) {
-		guard let sent = outgoing[id], sent.toUserNum == from else { return }
-		let wanted = sent.packets.enumerated().filter { missing.contains(UInt8($0.offset)) }.map(\.element)
+		// While the first run is still going, what is missing is mostly what has not been sent yet.
+		guard !sending.contains(id),
+			  let sent = store.sent(id: id, to: from), let info = sent.record.sent,
+			  let url = store.url(for: sent.record), let file = try? Data(contentsOf: url),
+			  let packets = try? SambungTransferWire.packets(for: file, id: id, kind: sent.record.kind, codec: sent.record.codec, messageID: info.messageID) else { return }
 		Task {
-			for packet in wanted {
-				try? await sendRaw(SambungTransferWire.encode(packet), toUserNum: sent.toUserNum, channel: sent.channel, accessoryManager: accessoryManager)
-				try? await Task.sleep(for: Self.packetInterval)
-			}
+			try? await deliver(packets, indexes: missing.map(Int.init), id: id, toUserNum: info.toUserNum, channel: info.channel, accessoryManager: accessoryManager)
 		}
 	}
 

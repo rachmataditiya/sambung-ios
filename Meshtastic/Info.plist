@@ -135,6 +135,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Kamera dipakai untuk memindai kode QR channel dan menampilkan model 3D radio di ruangan sekitarmu.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Dipakai untuk menyimpan foto dari percakapan ke galeri saat kamu memilih Simpan.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Mikrofon dipakai untuk merekam pesan suara yang kamu kirim lewat radio.</string>
 	<key>NSLocalNetworkUsageDescription</key>

@@ -31,8 +31,14 @@ private struct SambungMediaBubble: View {
 	let record: SambungMediaRecord
 	let url: URL?
 	let isCurrentUser: Bool
+	@State private var opened: SambungOpenedPhoto?
 
 	var body: some View {
+		content
+			.sheet(item: $opened) { SambungPhotoViewer(image: $0.image) }
+	}
+
+	private var content: some View {
 		VStack(alignment: .leading, spacing: 6) {
 			if record.kind == .voice, let url {
 				SambungVoicePlayer(url: url, tint: isCurrentUser ? .white : .primary)
@@ -40,13 +46,17 @@ private struct SambungMediaBubble: View {
 				Label("Pesan suara", systemImage: record.failed ? "mic.slash" : "mic")
 					.font(.subheadline.weight(.semibold))
 			} else if let url, let image = UIImage(contentsOfFile: url.path) {
-				Image(uiImage: image)
-					.resizable()
-					.interpolation(.medium)
-					.scaledToFit()
-					.frame(maxWidth: 220, maxHeight: 220)
-					.clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-					.accessibilityLabel("Foto")
+				Button { opened = SambungOpenedPhoto(image: image) } label: {
+					Image(uiImage: image)
+						.resizable()
+						.interpolation(.medium)
+						.scaledToFit()
+						.frame(maxWidth: 220, maxHeight: 220)
+						.clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+				}
+				.buttonStyle(.plain)
+				.accessibilityLabel("Foto")
+				.accessibilityHint("Buka foto")
 			} else {
 				Label("Foto", systemImage: record.failed ? "photo.badge.exclamationmark" : "photo")
 					.font(.subheadline.weight(.semibold))
@@ -71,6 +81,37 @@ private struct SambungMediaBubble: View {
 			return record.received < record.total ? sambungText("Mengirim paket %lld dari %lld", record.received, record.total) : nil
 		}
 		return record.isComplete ? nil : sambungText("Menerima paket %lld dari %lld", record.received, record.total)
+	}
+}
+
+private struct SambungOpenedPhoto: Identifiable {
+	let id = UUID()
+	let image: UIImage
+}
+
+/// A photo from the chat on its own, with the system's share sheet to save or pass it on.
+private struct SambungPhotoViewer: View {
+	@Environment(\.dismiss) private var dismiss
+	let image: UIImage
+
+	var body: some View {
+		NavigationStack {
+			Image(uiImage: image)
+				.resizable()
+				.scaledToFit()
+				.frame(maxWidth: .infinity, maxHeight: .infinity)
+				.background(Color.black)
+				.navigationTitle("Foto")
+				.navigationBarTitleDisplayMode(.inline)
+				.toolbar {
+					ToolbarItem(placement: .cancellationAction) { Button("Tutup") { dismiss() } }
+					ToolbarItem(placement: .confirmationAction) {
+						ShareLink(item: Image(uiImage: image), preview: SharePreview(sambungText("Foto"), image: Image(uiImage: image))) {
+							Label("Simpan atau bagikan", systemImage: "square.and.arrow.up")
+						}
+					}
+				}
+		}
 	}
 }
 

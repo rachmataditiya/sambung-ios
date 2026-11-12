@@ -228,6 +228,39 @@ struct SambungTransferWireTests {
 	}
 }
 
+@Suite("Sambung sent transfers")
+@MainActor
+struct SambungSentTransferTests {
+	private func folder() -> URL {
+		FileManager.default.temporaryDirectory.appendingPathComponent("sambung-sent-\(UUID().uuidString)", isDirectory: true)
+	}
+
+	@Test("A request for missing packets can be answered after the app was closed")
+	func sentTransferSurvivesReopening() {
+		let directory = folder()
+		let store = SambungMediaStore(directory: directory)
+		var record = SambungMediaRecord(kind: .image, codec: 2, fileName: nil, received: 0, total: 3, isOutgoing: true)
+		record.sent = SambungSentTransfer(id: 77, messageID: 5, toUserNum: 4_186_346_496, channel: 0)
+		store.store(Data([1, 2, 3]), for: "1-5", record: record)
+
+		let reopened = SambungMediaStore(directory: directory)
+		let found = reopened.sent(id: 77, to: 4_186_346_496)
+		#expect(found?.key == "1-5")
+		#expect(found.flatMap { reopened.url(for: $0.record) }.flatMap { try? Data(contentsOf: $0) } == Data([1, 2, 3]))
+		// Someone else asking for the same number gets nothing.
+		#expect(reopened.sent(id: 77, to: 1) == nil)
+		#expect(reopened.sent(id: 78, to: 4_186_346_496) == nil)
+	}
+
+	@Test("An index saved before sent transfers were kept still loads")
+	func olderIndexLoads() throws {
+		let old = #"{"1-5":{"kind":1,"codec":2,"fileName":"1-5.img","received":3,"total":3,"isOutgoing":true,"failed":false,"delivered":true}}"#
+		let records = try JSONDecoder().decode([String: SambungMediaRecord].self, from: Data(old.utf8))
+		#expect(records["1-5"]?.delivered == true)
+		#expect(records["1-5"]?.sent == nil)
+	}
+}
+
 @Suite("Sambung image codec")
 struct SambungImageCodecTests {
 	/// A 1200×900 photo-like image: gradients plus noise, which compresses like a real picture.

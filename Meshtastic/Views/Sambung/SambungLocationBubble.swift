@@ -34,6 +34,8 @@ struct SambungLocationBubble: View {
 					.font(.footnote)
 					.monospacedDigit()
 					.opacity(0.75)
+				Label("Buka di Peta", systemImage: "arrow.up.right.square")
+					.font(.footnote.weight(.semibold))
 			}
 			.frame(width: 220, alignment: .leading)
 		}
@@ -45,6 +47,9 @@ struct SambungLocationBubble: View {
 	private func openInMaps() {
 		let item = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
 		item.name = sambungText("Lokasi dibagikan")
-		item.openInMaps()
+		// Apple's Maps may have been removed from the phone; the web address opens whichever
+		// maps app is there, or the browser.
+		guard !item.openInMaps(), let web = URL(string: "https://www.google.com/maps/search/?api=1&query=\(coordinate.latitude),\(coordinate.longitude)") else { return }
+		UIApplication.shared.open(web)
 	}
 }
